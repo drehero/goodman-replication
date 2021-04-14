@@ -30,7 +30,7 @@ for (i in 1:nr_simulations) {
   results[i,]$fact = abs(mu - 100) > mpsd
   # and decisions
   for (method in METHODS) {
-    results[i,method] = get(method)(x)
+    results[i,method] = get(method)(x, mpsd)
   }
 }
 
