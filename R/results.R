@@ -4,19 +4,16 @@ source("R/simulation.R")
 
 # helper functions
 
-nominal_power = function(null_mean, alpha, sigma, n, MPSD) {
-  # Function to calculate the nominal power based on conventional power calculations
-  # for a one sample z-test.
-  true_standard_error = sigma/sqrt(n)
-  upper_critical_value = qnorm(1-alpha/2, null_mean, true_standard_error)
-  upper_alternative_mean = null_mean + MPSD
-  beta = pnorm(upper_critical_value, upper_alternative_mean, true_standard_error)
-  return(1-beta)
+nominal_power = function(alpha, sigma, n, mpsd) {
+  #' Function to calculate the nominal power based on conventional power calculations
+  #' I.e. the probability that a one sample two sided z-test with alternative hypothesis mu_1 = mu_0 + mpsd
+  #' rejects H_0 given H_1 is true
+  return(pnorm(mpsd / sigma * sqrt(n) - qnorm(1 - alpha/2)) + 1 - pnorm(mpsd / sigma * sqrt(n) + qnorm(1 - alpha/2)))
 }
 
 # postprocessing: add additional columns needed for evaluation
 
-results$power = nominal_power(100, 0.05, results$sigma, results$n, results$mpsd)
+results$power = nominal_power(0.05, results$sigma, results$n, results$mpsd)
 
 
 # Replication of results from the paper

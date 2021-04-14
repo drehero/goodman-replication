@@ -1,6 +1,6 @@
 #' Methods to be tested in the simulation
 
-METHODS = c("t_test", "t_test_strict", "mespt", "distance_only", "interval_based")
+METHODS = c("t_test", "t_test_strict", "mesp", "distance_only", "interval_based")
 # get(METHODS[1])(x, MPSD) to use
 
 t_test = function(x, mpsd=NULL, mu_0=100) {
@@ -19,7 +19,7 @@ t_test_strict = function(x, mpsd=NULL, mu_0=100) {
   return(p < 0.005)
 }
 
-mespt = function(x, mpsd, mu_0=100) {
+mesp = function(x, mpsd, mu_0=100) {
   #' Minimum effect size plus p-value
   #' proposed by Goodman et al. 2019
   return(t_test(x, mpsd, mu_0) & distance_only(x, mpsd, mu_0))
