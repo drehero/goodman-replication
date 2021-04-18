@@ -11,8 +11,12 @@ result_cols = c(
 
 results = data.frame(matrix(nrow=nr_simulations, ncol=length(result_cols), dimnames=list(c(), result_cols)))
 
-set.seed(123)
+#set.seed(123)
 for (i in 1:nr_simulations) {
+  if((i / nr_simulations * 100) %% 10 == 0) {
+    message("Simulation ", i, " of ", nr_simulations)
+  }
+  
   # sample a case
   mu    = sample(75:125, size=1)
   sigma = sample( 4:60,  size=1)

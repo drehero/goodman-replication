@@ -29,12 +29,23 @@ sum(results$power < 0.3)
 # proportions of implied inferences that were consistent with the fact for each 
 # combination of approach and power
 for (method in METHODS) {
-  print(method)
-  print(sum(results$fact == results[,method]))
-  print(sum(results$power >= 0.8 & results$fact == results[,method]) / sum(results$power >= 0.8))
-  print(sum(results$power >= 0.3 & results$power < 0.8 & results$fact == results[,method]) / sum(results$power >= 0.3 & results$power < 0.8))
-  print(sum(results$power < 0.3 & results$fact == results[,method]) / sum(results$power < 0.3))
+  message(method)
+  message(sum(results$fact == results[,method]))
+  message(sum(results$power >= 0.8 & results$fact == results[,method]) / sum(results$power >= 0.8))
+  message(sum(results$power >= 0.3 & results$power < 0.8 & results$fact == results[,method]) / sum(results$power >= 0.3 & results$power < 0.8))
+  message(sum(results$power < 0.3 & results$fact == results[,method]) / sum(results$power < 0.3))
+  message("===================")
 }
 
 
-## etc.
+
+# Other results:
+
+## Check errors
+errors = data.frame(method=METHODS)
+errors$true_positives = sapply(METHODS, function(method) sum(results$fact & results[,method])/sum(results$fact))
+errors$false_positives = sapply(METHODS, function(method) sum(!results$fact & results[,method])/sum(!results$fact))
+errors$true_negatives = sapply(METHODS, function(method) sum(!results$fact & !results[,method])/sum(!results$fact))
+errors$false_negatives = sapply(METHODS, function(method) sum(results$fact & !results[,method])/sum(results$fact))
+View(errors)
+
