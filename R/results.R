@@ -14,6 +14,7 @@ nominal_power = function(alpha, sigma, n, mpsd) {
 # postprocessing: add additional columns needed for evaluation
 
 results$power = nominal_power(0.05, results$sigma, results$n, results$mpsd)
+results$power_bins = .bincode(results$power, breaks=c(0, 0.3, 0.8, 1))
 
 
 # Replication of results from the paper
@@ -37,6 +38,48 @@ for (method in METHODS) {
   message("===================")
 }
 
+
+## Table 2
+# proportions of implied inferences that were consistent with the fact for each 
+# combination of approach, power and fact
+table_2 = data.frame()
+for (fact in c(FALSE, TRUE)) {
+  for (power_bin in 3:1) {
+    res = results[(results$power_bin == power_bin & results$fact == fact), ]
+    num_cases = dim(res)[1]
+    proportions = sapply(METHODS, function(method) sum(res[, method] == res$fact) / num_cases)
+    row = list(true_location_within_thick_null=!fact, power=power_bin, number_simulated_cases=num_cases)
+    table_2 = rbind(table_2, c(row, proportions))
+  }
+}
+View(table_2)
+
+
+## Figure 3
+dev.off()
+palette("Alphabet")
+par(mar=c(4, 0, 2, 0), mfrow=c(1, 2), oma=c(0.5, 4, 0.5, 0.5), xpd=TRUE)
+for (is_within in c(TRUE, FALSE)) {
+  plot(x=c(), y=c(), xlim=c(0.5,3.5), ylim=c(0, 1), ylab="",
+       main=paste("Thick H0:", is_within), xaxt="n", yaxt="n", xlab="Nominal Power")
+  axis(1, at=seq(1, 3), labels=c("Low","Medium", "High"), cex.axis=0.8)
+  abline(h = seq(0, 1, 0.1), col = "grey"); box(lwd=3)
+  legend_col = list()
+  for (i in 1:length(METHODS)) {
+  method = METHODS[i]
+  col = palette()[i]
+  legend_col[[method]] = col
+  lines(x=c(1, 2, 3), y=table_2[table_2$true_location_within_thick_null == is_within, method],
+        type="o", pch=19, col=col, lwd=3) 
+  }
+  if (is_within) {
+    axis(2)
+    legend("bottomright", inset=0.05, legend=names(legend_col), col=unlist(legend_col),
+           cex=0.8, pch=19)
+    mtext("Proportion of Inferences Consistent with True Parameter", side=2, outer=TRUE,
+          cex=0.8, las=3, padj=-6, adj=.65)
+  }
+}
 
 
 # Other results:
