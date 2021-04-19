@@ -1,3 +1,4 @@
+library(TOSTER)
 # Methods to be tested in the simulation
 
 METHODS = c("t_test", "t_test_strict", "mesp", "distance_only", "interval_based",
