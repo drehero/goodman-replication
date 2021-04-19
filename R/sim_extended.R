@@ -360,7 +360,9 @@ for(i in 1:n_iter) {
   tost <-  TOSTone.raw(mean(sample_norm)-100, mu=0, sd=sd(sample_norm), n=n,
                        low_eqbound=thick_null[1]-100,
                        high_eqbound=thick_null[2]-100, alpha=0.05, plot = FALSE,verbose = FALSE)
-  decision_thic_tost <- ((tost$TOST_p1 > alpha) & (tost$TOST_p2 < alpha))*1
+  decision_thic_tost <-  (!((tost$LL_CI_TOST > tost$low_eqbound ) & (tost$UL_CI_TOST < tost$high_eqbound )) & 
+                            (tost$LL_CI_TTEST > 0 | tost$UL_CI_TTEST < 0))
+
   
   # nominal power
   nom_power = nominal_power(null_mean, alpha, sigma, n, MPSD)

@@ -5,9 +5,8 @@
 # Session Data files
 .RData
 
-# Word files
-.docx
-
+# User-specific folders
+/peter
 
 # User-specific files
 .Ruserdata
