@@ -2,7 +2,7 @@ library(TOSTER)
 # Methods to be tested in the simulation
 
 METHODS = c("t_test", "t_test_strict", "mesp", "distance_only", "interval_based",
-            "t_test_max", "t_test_bayes", "eq_test")
+            "t_test_max", "t_test_bayes", "eq_test", "eq_test_2", "betensky")
 # get(METHODS[1])(x, MPSD) to use
 
 t_test = function(x, mpsd=NULL, mu_0=100) {
@@ -142,3 +142,29 @@ eq_test = function(x, mpsd, mu_0=100) {
   return(  (!((tost$LL_CI_TOST > tost$low_eqbound ) & (tost$UL_CI_TOST < tost$high_eqbound )) & 
               (tost$LL_CI_TTEST > 0 | tost$UL_CI_TTEST < 0)))
 }
+
+eq_test_2 = function(x, mpsd, mu_0=100) {
+  #' I don't realy understand what the TOST function does therefore I implemented 
+  #' the equivalence test as I understood it to see if the two implementations turn out to be equivalent (turns out not to be the case)
+  #' As I understood it, a TOST equivalence test tests two null hypotheses
+  #' H01: mu - mu_0 <= -mpsd and H02: mu - mu_0 >= mpsd
+  #' Equivalence is rejected if both H01 and H02 are rejected
+  #' Therefore, an equivalence should be similar to t_test_max with alpha and beta errors swapped
+  
+  #t = (abs(mean(x) - mu_0) - mpsd) / sd(x) * sqrt(length(x))
+  #p = 2 * pt(t, df=length(x)-1, lower.tail=TRUE)
+  t_u = (mean(x) - mu_0 - mpsd) / sd(x) * sqrt(length(x))
+  p_u = pt(t_u, df=length(x)-1, lower.tail=TRUE)
+  t_l = (mean(x) - mu_0 + mpsd) / sd(x) * sqrt(length(x))
+  p_l = pt(t_l, df=length(x)-1, lower.tail=FALSE)
+  return(!(p_u < 0.05 & p_l < 0.05))
+}
+
+betensky = function(x, mpsd, mu_0=100) {
+  #' same as the interval based method from Goodman but instead of the symmetric confidence interval
+  #'  we choose the one sided confidence interval (mu*, infty) for the absolute effect size
+
+  return(abs(mean(x) - mu_0) > sd(x) / sqrt(length(x)) * qt(0.95, length(x)-1) + mpsd)
+}
+
+
