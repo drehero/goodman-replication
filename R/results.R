@@ -86,9 +86,11 @@ for (is_within in c(TRUE, FALSE)) {
 
 ## Check errors
 errors = data.frame(method=METHODS)
-errors$true_positives = sapply(METHODS, function(method) sum(results$fact & results[,method])/sum(results$fact))
-errors$false_positives = sapply(METHODS, function(method) sum(!results$fact & results[,method])/sum(!results$fact))
-errors$true_negatives = sapply(METHODS, function(method) sum(!results$fact & !results[,method])/sum(!results$fact))
-errors$false_negatives = sapply(METHODS, function(method) sum(results$fact & !results[,method])/sum(results$fact))
+errors$true_positives = sapply(METHODS, function(method) sum(results$fact & results[,method])/sum(results$fact))  # aka sensitivity
+errors$false_positives = sapply(METHODS, function(method) sum(!results$fact & results[,method])/sum(!results$fact))  # aka type I error alpha
+errors$true_negatives = sapply(METHODS, function(method) sum(!results$fact & !results[,method])/sum(!results$fact))  # aka specificity
+errors$false_negatives = sapply(METHODS, function(method) sum(results$fact & !results[,method])/sum(results$fact))  # aka 1 - power
+errors$accuracy = sapply(METHODS, function(method) sum(results$fact == results[,method])/nrow(results))
+errors$balanced_accuracy = (errors$true_positives + errors$true_positives)/2
 View(errors)
 

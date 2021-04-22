@@ -2,7 +2,8 @@ library(TOSTER)
 # Methods to be tested in the simulation
 
 METHODS = c("t_test", "t_test_strict", "mesp", "distance_only", "interval_based",
-            "t_test_max", "t_test_bayes", "eq_test", "eq_test_2", "betensky")
+            "t_test_max", "t_test_bayes", 
+            "eq_test", "eq_test_2", "betensky", "false_positive_risk")
 # get(METHODS[1])(x, MPSD) to use
 
 t_test = function(x, mpsd=NULL, mu_0=100) {
@@ -167,4 +168,12 @@ betensky = function(x, mpsd, mu_0=100) {
   return(abs(mean(x) - mu_0) > sd(x) / sqrt(length(x)) * qt(0.95, length(x)-1) + mpsd)
 }
 
-
+false_positive_risk = function(x, mpsd, mu_0=100) {
+  #' False positive risk as calculated by Colquhoun
+  
+  t = (mean(x) - mu_0) / sd(x) * sqrt(length(x))
+  likelihood =  dt(abs(t), df=length(x)-1, ncp=abs(mean(x)-mu_0)/sd(x)) / 2 / dt(abs(t), df=length(x)-1)
+  fpr =  1 / (1 + likelihood)
+  
+  return(fpr < 0.05)
+}
