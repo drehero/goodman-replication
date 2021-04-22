@@ -14,7 +14,13 @@ nominal_power = function(alpha, sigma, n, mpsd) {
 # postprocessing: add additional columns needed for evaluation
 
 results$power = nominal_power(0.05, results$sigma, results$n, results$mpsd)
-results$power_bins = .bincode(results$power, breaks=c(0, 0.3, 0.8, 1))
+results$power_bins = .bincode(results$power, breaks=c(0, 0.3, 0.8, 1), right=TRUE)
+results$relative_mpsd = results$mpsd / results$sigma
+results$relative_mpsd_deciles = .bincode(results$relative_mpsd,
+                                         breaks=c(0, 0.107, 0.167, 0.232, 0.290, 0.349,
+                                                  0.421, 0.531, 0.750, 1.214, 5.000),
+                                         right=TRUE)
+# deciles need to be adjusted, if different setup values are used
 
 
 # Replication of results from the paper
@@ -80,6 +86,21 @@ for (is_within in c(TRUE, FALSE)) {
           cex=0.8, las=3, padj=-6, adj=.65)
   }
 }
+
+
+## Table 3
+table_3 = data.frame()
+for (fact in c(FALSE, TRUE)) {
+  for (relative_mpsd_decile in min(results$relative_mpsd_deciles):max(results$relative_mpsd_deciles)) {
+    res = results[(results$relative_mpsd_deciles == relative_mpsd_decile & results$fact == fact), ]
+    num_cases = dim(res)[1]
+    proportions = sapply(METHODS, function(method) sum(res[, method] == res$fact) / num_cases)
+    row = list(true_location_within_thick_null=!fact, relative_mpsd_decile=relative_mpsd_decile, number_simulated_cases=num_cases)
+    table_3 = rbind(table_3, c(row, proportions))
+  }
+}
+View(table_3)
+
 
 
 # Other results:
