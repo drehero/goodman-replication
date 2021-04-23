@@ -11,16 +11,19 @@ nominal_power = function(alpha, sigma, n, mpsd) {
   return(pnorm(mpsd / sigma * sqrt(n) - qnorm(1 - alpha/2)) + 1 - pnorm(mpsd / sigma * sqrt(n) + qnorm(1 - alpha/2)))
 }
 
-calculate_impact_of_power_and_location = function(results) {
+calculate_impact_of_power_and_location = function(results, methods=METHODS) {
   #' Function to calculate proportions of implied inferences that were consistent with the fact for each 
   #' combination of approach, power and fact (s. Goodman table 2)
+  #' 
+  #' results: Dataframe of simulation results
+  #' methods: Vector of method names, specifying the methods to plot
   results$power_bins = .bincode(results$power, breaks=c(0, 0.3, 0.8, 1), right=TRUE)
   impact = data.frame()
   for (fact in c(FALSE, TRUE)) {
     for (power_bin in 3:1) {
       res = results[(results$power_bin == power_bin & results$fact == fact), ]
       num_cases = dim(res)[1]
-      proportions = sapply(METHODS, function(method) sum(res[, method] == res$fact) / num_cases)
+      proportions = sapply(methods, function(method) sum(res[, method] == res$fact) / num_cases)
       row = list(true_location_within_thick_null=!fact, power=power_bin, number_simulated_cases=num_cases)
       impact = rbind(impact, c(row, proportions))
     }
@@ -28,13 +31,12 @@ calculate_impact_of_power_and_location = function(results) {
   return(impact)
 }
 
-plot_impact_of_power_and_location = function(results, methods=METHODS, color_palette="Alphabet") {
+plot_impact_of_power_and_location = function(results, methods=METHODS) {
   #' Function to plot the impact of power, method, and true location of the null on inference success
   #' (s. Goodman Figure 3)
   #' 
-  #' results: dataframe of simulation results
-  #' methods: The methods to plot
-  #' color_palette: palette name, for available palettes see palette.pals()
+  #' results: Dataframe of simulation results
+  #' methods: Vector of method names, specifying the methods to plot
   impact = calculate_impact_of_power_and_location(results)
   par(mar=c(4, 0, 2, 0), mfrow=c(1, 2), oma=c(0.5, 4, 0.5, 0.5), xpd=TRUE)
   for (is_within in c(TRUE, FALSE)) {
@@ -45,7 +47,7 @@ plot_impact_of_power_and_location = function(results, methods=METHODS, color_pal
     legend_col = list()
     for (i in 1:length(methods)) {
       method = methods[i]
-      col = palette(color_palette)[i]
+      col = palette("Alphabet")[i]
       legend_col[[method]] = col
       y = rev(impact[impact$true_location_within_thick_null == is_within, method])
       lines(x=c(1, 2, 3), y=y, type="o", pch=19, col=col, lwd=3) 
@@ -97,13 +99,16 @@ for (method in METHODS) {
 ## Table 2
 # proportions of implied inferences that were consistent with the fact for each 
 # combination of approach, power and fact
-table_2 = calculate_impact_of_power_and_location(results)
-View(table_2)
 
+goodman_methods = c("t_test", "t_test_strict", "mesp", "distance_only", "interval_based")
+table_2 = calculate_impact_of_power_and_location(results, goodman_methods)
+print(table_2)
+
+impact = calculate_impact_of_power_and_location(results)
+View(impact)
 
 ## Figure 3
-goodman_methods = c("t_test", "t_test_strict", "mesp", "distance_only", "interval_based")
-plot_impact_of_power_and_location(results, methods=goodman_methods, color_palette="Alphabet")
+plot_impact_of_power_and_location(results, methods=goodman_methods)
 plot_impact_of_power_and_location(results)
 plot_impact_of_power_and_location(results, c(goodman_methods, "t_test_bayes", "eq_test"))
 
