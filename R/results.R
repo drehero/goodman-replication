@@ -137,6 +137,6 @@ errors$false_positives = sapply(METHODS, function(method) sum(!results$fact & re
 errors$true_negatives = sapply(METHODS, function(method) sum(!results$fact & !results[,method])/sum(!results$fact))  # aka specificity
 errors$false_negatives = sapply(METHODS, function(method) sum(results$fact & !results[,method])/sum(results$fact))  # aka 1 - power
 errors$accuracy = sapply(METHODS, function(method) sum(results$fact == results[,method])/nrow(results))
-errors$balanced_accuracy = (errors$true_positives + errors$true_positives)/2
+errors$balanced_accuracy = (errors$true_positives + errors$true_negatives)/2
 View(errors)
 
