@@ -28,13 +28,12 @@ calculate_impact_of_power_and_location = function(results) {
   return(impact)
 }
 
-plot_impact_of_power_and_location = function(results, methods=METHODS, legend_position="middle_left", color_palette="Alphabet") {
+plot_impact_of_power_and_location = function(results, methods=METHODS, color_palette="Alphabet") {
   #' Function to plot the impact of power, method, and true location of the null on inference success
   #' (s. Goodman Figure 3)
   #' 
   #' results: dataframe of simulation results
   #' methods: The methods to plot
-  #' legend_position: Position of the legend, one of c(left, middle_left, middle_right, right)
   #' color_palette: palette name, for available palettes see palette.pals()
   impact = calculate_impact_of_power_and_location(results)
   par(mar=c(4, 0, 2, 0), mfrow=c(1, 2), oma=c(0.5, 4, 0.5, 0.5), xpd=TRUE)
@@ -55,22 +54,7 @@ plot_impact_of_power_and_location = function(results, methods=METHODS, legend_po
       axis(2)
       mtext("Proportion of Inferences Consistent with True Parameter", side=2, outer=TRUE,
             cex=0.8, las=3, padj=-6, adj=.65)
-      if (legend_position == "left" | legend_position == "middle_left") {
-        if (legend_position == "left") {
-          pos = "bottomleft"
-        } else if (legend_position == "middle_left") {
-          pos = "bottomright"
-        }
-        legend(pos, inset=0.05, legend=names(legend_col), col=unlist(legend_col),
-               cex=0.8, pch=19)
-      }
-    } else if (legend_position == "middle_right" | legend_position == "right") {
-      if (legend_position == "middle_right") {
-        pos = "bottomleft"
-      } else if (legend_position == "right") {
-        pos = "bottomright"
-      }
-      legend(pos, inset=0.05, legend=names(legend_col), col=unlist(legend_col),
+      legend("bottomleft", inset=0.05, legend=names(legend_col), col=unlist(legend_col),
              cex=0.8, pch=19)
     }
   }
@@ -119,9 +103,8 @@ View(table_2)
 
 ## Figure 3
 goodman_methods = c("t_test", "t_test_strict", "mesp", "distance_only", "interval_based")
-plot_impact_of_power_and_location(results, methods=goodman_methods,
-                                  legend="middle_left", color_palette="Alphabet")
-plot_impact_of_power_and_location(results, legend="left")
+plot_impact_of_power_and_location(results, methods=goodman_methods, color_palette="Alphabet")
+plot_impact_of_power_and_location(results)
 plot_impact_of_power_and_location(results, c(goodman_methods, "t_test_bayes", "eq_test"))
 
 
