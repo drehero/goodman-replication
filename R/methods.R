@@ -101,38 +101,11 @@ t_test_bayes = function(x, mpsd, mu_0=100) {
   return(p < 0.05)
 }
 
-t_test_max = function(x, mpsd, mu_0=100) {
-  #' We calculate the least favourable p-value under the thick null hypothesis:
-  #' p = max_{mu_0-mpsd <= mu <= mu_0+mpsd} 2 min(P(T > t | H_0), P(T < t | H_0))
-  #'   = 1 if x_bar in thick null
-  #'   = 2 P(T > |t| | mu_0 + mpsd) if x_bar > mu_0 + mpsd
-  #'   = 2 P(T > |t| | mu_0 - mpsd) if x_bar < mu_0 - mpsd
-  #' We reject H_0 if p < alpha = 0.05
-  #' 
-  #' As Peter noticed, this is equivalent to the interval based method (at least in the t-test context).
-  #' Still, I (Arne) think it is a nicer way to derive it, because its grounded in the established
-  #' p-value-context and not in some vague intuitions about intervals
-  #'   
-  #' Motivation:
-  #' 1. Familarity: This is exactly what we do when we calculate the p-value for a one sided test
-  #'                See https://en.wikipedia.org/wiki/P-value#For_composite_hypothesis
-  #' 2. Alpha: This test guarantees that the probability to make a type one error is
-  #'           at most alpha, which is exactly what we expect from a statistical test that has
-  #'           an alpha parameter
-  
-  dif = abs(mean(x) - mu_0)
-  if (dif <= mpsd) {
-    return(FALSE)
-  }
-  t = (dif - mpsd) / sd(x) * sqrt(length(x))
-  p = 2 * pt(abs(t), df=length(x)-1, lower.tail=FALSE)
-  return(p < 0.05)
-}
 
 eq_test = function(x, mpsd, mu_0=100) {
   #' two one-sided tests (TOST) adjusted:
   #' usually, this test is designed for testing equivalence to
-  #' a thick null hypothesis. But one could also use this test to a reject
+  #' a thick null hypothesis (so this is H1). But one could also use this test to a reject
   #' a null hypothesis if the observed test statistic is statistically
   #' significant at the 5% level from the point null hypothesis (using a simple
   #' t-test) and the TOST is not rejected implying one cannot find equivalence
@@ -150,6 +123,7 @@ eq_test_2 = function(x, mpsd, mu_0=100) {
   #' As I understood it, a TOST equivalence test tests two null hypotheses
   #' H01: mu - mu_0 <= -mpsd and H02: mu - mu_0 >= mpsd
   #' Equivalence is rejected if both H01 and H02 are rejected
+  #' PP: Not quite - If H01 and H02 are rejected, thenreject the presence of any effect you care about (any effect larger than SESOI)
   #' Therefore, an equivalence should be similar to t_test_max with alpha and beta errors swapped
   
   #t = (abs(mean(x) - mu_0) - mpsd) / sd(x) * sqrt(length(x))
