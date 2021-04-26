@@ -11,12 +11,12 @@ nominal_power = function(alpha, sigma, n, mpsd) {
   return(pnorm(mpsd / sigma * sqrt(n) - qnorm(1 - alpha/2)) + 1 - pnorm(mpsd / sigma * sqrt(n) + qnorm(1 - alpha/2)))
 }
 
-calculate_impact_of_power_and_location = function(results, methods=METHODS) {
-  #' Function to calculate proportions of implied inferences that were consistent with the fact for each 
-  #' combination of approach, power and fact (s. Goodman table 2)
+calculate_impact_of_power = function(results, methods=METHODS) {
+  #' Function to calculate proportions of implied inferences that were consistent 
+  #' with the fact for each combination of approach, power and fact (s. Goodman table 2)
   #' 
-  #' results: Dataframe of simulation results
-  #' methods: Vector of method names, specifying the methods to plot
+  #' results: Dataframe of post processed simulation results
+  #' methods: Vector of method names, specifying the methods to calculate the impact for
   results$power_bins = .bincode(results$power, breaks=c(0, 0.3, 0.8, 1), right=TRUE)
   impact = data.frame()
   for (fact in c(FALSE, TRUE)) {
@@ -31,13 +31,40 @@ calculate_impact_of_power_and_location = function(results, methods=METHODS) {
   return(impact)
 }
 
-plot_impact_of_power_and_location = function(results, methods=METHODS) {
-  #' Function to plot the impact of power, method, and true location of the null on inference success
-  #' (s. Goodman Figure 3)
+calculate_impact_of_MPSD = function(results, methods=METHODS) {
+  #' Function to calculate proportions of implied inferences that were consistent 
+  #' with the fact for each combination of approach, relative MPSD and fact 
+  #' (s. Goodman table 3)
   #' 
-  #' results: Dataframe of simulation results
+  #' results: Dataframe of post processed simulation results
+  #' methods: Vector of method names, specifying the methods to calculate the impact for
+  results$relative_mpsd_deciles = .bincode(results$relative_mpsd,
+                                           breaks=c(0, 0.107, 0.167, 0.232, 0.290, 0.349,
+                                                    0.421, 0.531, 0.750, 1.214, 5.000),
+                                           right=TRUE)
+  # Decile breaks might need to be adjusted, if different setup values are used
+  impact = data.frame()
+  for (fact in c(FALSE, TRUE)) {
+    for (relative_mpsd_decile in min(results$relative_mpsd_deciles):max(results$relative_mpsd_deciles)) {
+      res = results[(results$relative_mpsd_deciles == relative_mpsd_decile & results$fact == fact), ]
+      num_cases = dim(res)[1]
+      proportions = sapply(methods, function(method) sum(res[, method] == res$fact) / num_cases)
+      row = list(true_location_within_thick_null=!fact, relative_mpsd_decile=relative_mpsd_decile,
+                 number_simulated_cases=num_cases)
+      impact = rbind(impact, c(row, proportions))
+    }
+  }
+  return(impact)
+}
+
+
+plot_impact_of_power = function(results, methods=METHODS) {
+  #' Function to plot the impact of power, method, and true location of the null
+  #' on inference success (s. Goodman Figure 3)
+  #' 
+  #' results: Dataframe of post processed simulation results
   #' methods: Vector of method names, specifying the methods to plot
-  impact = calculate_impact_of_power_and_location(results)
+  impact = calculate_impact_of_power(results)
   par(mar=c(4, 0, 2, 0), mfrow=c(1, 2), oma=c(0.5, 4, 0.5, 0.5), xpd=TRUE)
   for (is_within in c(TRUE, FALSE)) {
     plot(x=c(), y=c(), xlim=c(0.5,3.5), ylim=c(0, 1), ylab="",
@@ -63,15 +90,42 @@ plot_impact_of_power_and_location = function(results, methods=METHODS) {
 }
 
 
+plot_impact_of_MPSD = function(results, true_loc_within, methods=METHODS) {
+  #' Function to plot the impact of relative MPSD, method, and true location 
+  #' of the null on inference success (s. Goodman Table 3)
+  #' 
+  #' results: Dataframe of post processed simulation results
+  #' true_loc_within: TRUE if true location falls within bounds of thick null, else FASLE
+  #' methods: Vector of method names, specifying the methods to plot
+  impact = calculate_impact_of_MPSD(results, methods)
+  par(mar=c(4, 0, 2, 0), mfrow=c(1, 1), oma=c(0.5, 4, 0.5, 0.5), xpd=TRUE)
+  plot(x=c(), y=c(), xlim=c(1, 10), ylim=c(0, 1), ylab="",
+       main=paste("True location within 'thick null':", true_loc_within),
+       xaxt="n", yaxt="n",
+       xlab="Decile for MPSD in population standard deviations")
+  axis(1, at=seq(1, 10), cex.axis=0.8)
+  abline(h = seq(0, 1, 0.1), col = "grey"); box(lwd=3)
+  legend_col = list()
+  for (i in 1:length(methods)) {
+    method = methods[i]
+    col = palette("Alphabet")[i]
+    legend_col[[method]] = col
+    y = impact[impact$true_location_within_thick_null == true_loc_within, method]
+    lines(x=seq(1, 10), y=y, type="o", pch=19, col=col, lwd=3) 
+  }
+  axis(2)
+  mtext("Proportion of Inferences Consistent with True Parameter", side=2, outer=TRUE,
+        cex=0.8, las=3, padj=-6, adj=.65)
+  if (true_loc_within) {loc = "bottomleft"} else {loc = "bottomright"}
+  legend(loc, inset=0.05, legend=names(legend_col), col=unlist(legend_col),
+         cex=0.8, pch=19)
+}
+
+
 # postprocessing: add additional columns needed for evaluation
 
 results$power = nominal_power(0.05, results$sigma, results$n, results$mpsd)
 results$relative_mpsd = results$mpsd / results$sigma
-results$relative_mpsd_deciles = .bincode(results$relative_mpsd,
-                                         breaks=c(0, 0.107, 0.167, 0.232, 0.290, 0.349,
-                                                  0.421, 0.531, 0.750, 1.214, 5.000),
-                                         right=TRUE)
-# deciles need to be adjusted, if different setup values are used
 
 
 # Replication of results from the paper
@@ -101,34 +155,38 @@ for (method in METHODS) {
 # combination of approach, power and fact
 
 goodman_methods = c("t_test", "t_test_strict", "mesp", "distance_only", "interval_based")
-table_2 = calculate_impact_of_power_and_location(results, goodman_methods)
+table_2 = calculate_impact_of_power(results, goodman_methods)
 print(table_2)
 
-impact = calculate_impact_of_power_and_location(results)
-View(impact)
+impact_of_power = calculate_impact_of_power(results)
+View(impact_of_power)
 
 ## Figure 3
-plot_impact_of_power_and_location(results, methods=goodman_methods)
-plot_impact_of_power_and_location(results)
-plot_impact_of_power_and_location(results, c(goodman_methods, "t_test_bayes", "eq_test"))
+plot_impact_of_power(results, methods=goodman_methods)
+plot_impact_of_power(results)
+plot_impact_of_power(results, c(goodman_methods, "t_test_bayes", "eq_test"))
 
 
 ## Table 3
-table_3 = data.frame()
-for (fact in c(FALSE, TRUE)) {
-  for (relative_mpsd_decile in min(results$relative_mpsd_deciles):max(results$relative_mpsd_deciles)) {
-    res = results[(results$relative_mpsd_deciles == relative_mpsd_decile & results$fact == fact), ]
-    num_cases = dim(res)[1]
-    proportions = sapply(METHODS, function(method) sum(res[, method] == res$fact) / num_cases)
-    row = list(true_location_within_thick_null=!fact, relative_mpsd_decile=relative_mpsd_decile, number_simulated_cases=num_cases)
-    table_3 = rbind(table_3, c(row, proportions))
-  }
-}
-View(table_3)
 
+table_3 = calculate_impact_of_MPSD(results, goodman_methods)
+print(table_3)
+impact_of_mpsd = calculate_impact_of_MPSD(results)
+View(impact_of_mpsd)
 
 
 # Other results:
+
+## Plot of Table 3
+plot_impact_of_MPSD(results, true_loc_within=TRUE, goodman_methods)
+plot_impact_of_MPSD(results, true_loc_within=FALSE, goodman_methods)
+
+plot_impact_of_MPSD(results, TRUE)
+plot_impact_of_MPSD(results, FALSE)
+
+plot_impact_of_MPSD(results, TRUE, c(goodman_methods, "t_test_bayes", "eq_test"))
+plot_impact_of_MPSD(results, FALSE, c(goodman_methods, "t_test_bayes", "eq_test"))
+
 
 ## Check errors
 errors = data.frame(method=METHODS)
