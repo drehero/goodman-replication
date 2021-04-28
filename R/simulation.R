@@ -1,7 +1,7 @@
 # add methods to be tested and list of method names METHODS to the workspace
 source("R/methods.R")
 
-nr_simulations = 5000
+nr_simulations = 10000
 
 result_cols = c(
   "mu", "sigma", "n", "mpsd",  # case

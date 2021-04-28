@@ -1,6 +1,8 @@
 # run simulation and get results
 source("R/simulation.R")
 
+PALETTE = c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2",
+            "#D55E00", "#CC79A7", "#E31A1C", "#B15928", "#6A3D9A", "#FFFF99")
 
 # helper functions
 
@@ -65,32 +67,35 @@ plot_impact_of_power = function(results, methods=METHODS) {
   #' results: Dataframe of post processed simulation results
   #' methods: Vector of method names, specifying the methods to plot
   impact = calculate_impact_of_power(results)
-  par(mar=c(4, 0, 2, 0), mfrow=c(1, 2), oma=c(0.5, 4, 0.5, 0.5), xpd=TRUE)
+  par(mar=c(4, 0, 4, 0), mfrow=c(1, 2), oma=c(0.5, 4, 0.5, 0.5), xpd=TRUE, cex=0.8)
   for (is_within in c(TRUE, FALSE)) {
-    plot(x=c(), y=c(), xlim=c(0.5,3.5), ylim=c(0, 1), ylab="",
-         main=paste("Thick Null:", is_within), xaxt="n", yaxt="n", xlab="Nominal Power")
+    plot(x=c(), y=c(), xlim=c(0.5,3.5), ylim=c(0, 1), ylab="", xaxt="n", yaxt="n",xlab="")
+    if (is_within) {within="YES"} else {within="NO"}
+    title(within, line=1)
     axis(1, at=seq(1, 3), labels=c("Low","Medium", "High"), cex.axis=0.8)
     abline(h = seq(0, 1, 0.1), col = "grey"); box(lwd=3)
     legend_col = list()
     for (i in 1:length(methods)) {
       method = methods[i]
-      col = palette("Alphabet")[i]
+      col = PALETTE[i]
       legend_col[[method]] = col
       y = rev(impact[impact$true_location_within_thick_null == is_within, method])
       lines(x=c(1, 2, 3), y=y, type="o", pch=19, col=col, lwd=3) 
     }
     if (is_within) {
       axis(2)
-      mtext("Proportion of Inferences Consistent with True Parameter", side=2, outer=TRUE,
-            cex=0.8, las=3, padj=-6, adj=.65)
-      legend("bottomleft", inset=0.05, legend=names(legend_col), col=unlist(legend_col),
-             cex=0.8, pch=19)
+      mtext("Proportion of inferences consistent with true parameter", side=2, outer=TRUE,
+            las=3, padj=-3)
+      legend("bottomleft", inset=0.05, legend=names(legend_col), col=unlist(legend_col), pch=19)
     }
   }
+  mtext("Nominal Power", side=1, outer=TRUE, cex=1, padj=-1.5)
+  mtext("Does the true location fall within the bounds of the 'thick null'?",
+        side=3, outer=TRUE, cex=1, padj=1.5)
 }
 
 
-plot_impact_of_MPSD = function(results, true_loc_within, methods=METHODS) {
+plot_impact_of_MPSD = function(results, methods=METHODS) {
   #' Function to plot the impact of relative MPSD, method, and true location 
   #' of the null on inference success (s. Goodman Table 3)
   #' 
@@ -98,28 +103,36 @@ plot_impact_of_MPSD = function(results, true_loc_within, methods=METHODS) {
   #' true_loc_within: TRUE if true location falls within bounds of thick null, else FASLE
   #' methods: Vector of method names, specifying the methods to plot
   impact = calculate_impact_of_MPSD(results, methods)
-  par(mar=c(4, 0, 2, 0), mfrow=c(1, 1), oma=c(0.5, 4, 0.5, 0.5), xpd=TRUE)
-  plot(x=c(), y=c(), xlim=c(1, 10), ylim=c(0, 1), ylab="",
-       main=paste("True location within 'thick null':", true_loc_within),
-       xaxt="n", yaxt="n",
-       xlab="Decile for MPSD in population standard deviations")
-  axis(1, at=seq(1, 10), cex.axis=0.8)
-  abline(h = seq(0, 1, 0.1), col = "grey"); box(lwd=3)
-  legend_col = list()
-  for (i in 1:length(methods)) {
-    method = methods[i]
-    col = palette("Alphabet")[i]
-    legend_col[[method]] = col
-    y = impact[impact$true_location_within_thick_null == true_loc_within, method]
-    lines(x=seq(1, 10), y=y, type="o", pch=19, col=col, lwd=3) 
+  par(mar=c(4, 0, 4, 0), mfrow=c(1, 2), oma=c(0.5, 4, 0.5, 0.5), xpd=TRUE, cex=0.8)
+  for (true_loc_within in c(TRUE, FALSE)) {
+    plot(x=c(), y=c(), xlim=c(1, 10), ylim=c(0, 1), ylab="",
+         xaxt="n", yaxt="n", xlab="")
+    if (true_loc_within) {within="YES"} else {within="NO"}
+    title(within, line=1)
+    axis(1, at=seq(1, 10), cex.axis=0.8)
+    abline(h = seq(0, 1, 0.1), col = "grey"); box(lwd=3)
+    legend_col = list()
+    for (i in 1:length(methods)) {
+      method = methods[i]
+      col = PALETTE[i]
+      legend_col[[method]] = col
+      y = impact[impact$true_location_within_thick_null == true_loc_within, method]
+      lines(x=seq(1, 10), y=y, type="o", pch=19, col=col, lwd=3) 
+    }
+    if (true_loc_within) {
+      axis(2)
+      mtext("Proportion of inferences consistent with true parameter", side=2, outer=TRUE,
+            cex=1, las=3, padj=-3)
+      legend("bottomleft", inset=0.05, legend=names(legend_col), col=unlist(legend_col),
+             cex=1, pch=19)
+    }
   }
-  axis(2)
-  mtext("Proportion of Inferences Consistent with True Parameter", side=2, outer=TRUE,
-        cex=0.8, las=3, padj=-6, adj=.65)
-  if (true_loc_within) {loc = "bottomleft"} else {loc = "bottomright"}
-  legend(loc, inset=0.05, legend=names(legend_col), col=unlist(legend_col),
-         cex=0.8, pch=19)
+  mtext("Decile for MPSD in population standard deviations", side=1, outer=TRUE,
+        cex=1, padj=-2)
+  mtext("Does the true location fall within the bounds of the 'thick null'?",
+        side=3, outer=TRUE, cex=1, padj=1.5)
 }
+
 
 
 # postprocessing: add additional columns needed for evaluation
@@ -158,7 +171,7 @@ goodman_methods = c("t_test", "t_test_strict", "mesp", "distance_only", "interva
 table_2 = calculate_impact_of_power(results, goodman_methods)
 print(table_2)
 
-impact_of_power = calculate_impact_of_power(results)
+impact_of_power = calculate_impact_of_power(results, c(goodman_methods, "t_test_bayes", "eq_test"))
 View(impact_of_power)
 
 ## Figure 3
@@ -171,21 +184,16 @@ plot_impact_of_power(results, c(goodman_methods, "t_test_bayes", "eq_test"))
 
 table_3 = calculate_impact_of_MPSD(results, goodman_methods)
 print(table_3)
-impact_of_mpsd = calculate_impact_of_MPSD(results)
+impact_of_mpsd = calculate_impact_of_MPSD(results, c(goodman_methods, "t_test_bayes", "eq_test"))
 View(impact_of_mpsd)
 
 
 # Other results:
 
 ## Plot of Table 3
-plot_impact_of_MPSD(results, true_loc_within=TRUE, goodman_methods)
-plot_impact_of_MPSD(results, true_loc_within=FALSE, goodman_methods)
-
-plot_impact_of_MPSD(results, TRUE)
-plot_impact_of_MPSD(results, FALSE)
-
-plot_impact_of_MPSD(results, TRUE, c(goodman_methods, "t_test_bayes", "eq_test"))
-plot_impact_of_MPSD(results, FALSE, c(goodman_methods, "t_test_bayes", "eq_test"))
+plot_impact_of_MPSD(results, goodman_methods)
+plot_impact_of_MPSD(results)
+plot_impact_of_MPSD(results, c(goodman_methods, "t_test_bayes", "eq_test"))
 
 
 ## Check errors
