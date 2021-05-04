@@ -11,7 +11,7 @@ t_test = function(x, mpsd=NULL, mu_0=100) {
   #' same as t.test(x, mu=mu_0, alternative="two.sided")$p.value < 0.05
   t = (mean(x) - mu_0) / sd(x) * sqrt(length(x))
   p = 2 * pt(abs(t), df=length(x)-1, lower.tail=FALSE)
-  return(p < 0.05)
+  return(p <= 0.05)
 }
 
 t_test_strict = function(x, mpsd=NULL, mu_0=100) {
@@ -19,7 +19,7 @@ t_test_strict = function(x, mpsd=NULL, mu_0=100) {
   #' same as t.test(x, mu=mu_0, alternative="two.sided")$p.value < 0.005
   t = (mean(x) - mu_0) / sd(x) * sqrt(length(x))
   p = 2 * pt(abs(t), df=length(x)-1, lower.tail=FALSE)
-  return(p < 0.005)
+  return(p <= 0.005)
 }
 
 mesp = function(x, mpsd, mu_0=100) {
@@ -35,6 +35,14 @@ distance_only = function(x, mpsd, mu_0=100) {
 
 interval_based = function(x, mpsd, mu_0=100) {
   #' reject if confidence interval and thick null don't overlap
+  #' 
+  #' important: We use the confidence interval that assumes the t statistic we 
+  #' calculated is t-distributed while
+  #' et al. use the confidence interval that assumes that the t statistic is normal
+  #' distributed
+  #' -> For small n, our confidence interval will be bigger
+  #' e.g. for minimal n = 5 our CI will be 2.77/1.96 = 1.41 times the size of goodmans
+  #' -> Our test is less likely to reject H0
   return(abs(mean(x) - mu_0) > sd(x) / sqrt(length(x)) * qt(0.975, length(x)-1) + mpsd)
 }
 
@@ -66,7 +74,7 @@ t_test_max = function(x, mpsd, mu_0=100) {
   }
   t = (dif - mpsd) / sd(x) * sqrt(length(x))
   p = 2 * pt(abs(t), df=length(x)-1, lower.tail=FALSE)
-  return(p < 0.05)
+  return(p <= 0.05)
 }
 
 t_test_bayes = function(x, mpsd, mu_0=100) {
@@ -98,7 +106,7 @@ t_test_bayes = function(x, mpsd, mu_0=100) {
   t = (mean(x) - mu) / sd(x) * sqrt(length(x))
   p_right = sum(pt(t, df=length(x)-1, lower.tail=FALSE)) / (2 * mpsd + 1)
   p = 2 * min(p_right, 1-p_right)
-  return(p < 0.05)
+  return(p <= 0.05)
 }
 
 
@@ -132,7 +140,7 @@ eq_test_2 = function(x, mpsd, mu_0=100) {
   p_u = pt(t_u, df=length(x)-1, lower.tail=TRUE)
   t_l = (mean(x) - mu_0 + mpsd) / sd(x) * sqrt(length(x))
   p_l = pt(t_l, df=length(x)-1, lower.tail=FALSE)
-  return(!(p_u < 0.05 & p_l < 0.05))
+  return(!(p_u <= 0.05 & p_l <= 0.05))
 }
 
 betensky = function(x, mpsd, mu_0=100) {
@@ -149,5 +157,5 @@ false_positive_risk = function(x, mpsd, mu_0=100) {
   likelihood =  dt(abs(t), df=length(x)-1, ncp=abs(mean(x)-mu_0)/sd(x)) / 2 / dt(abs(t), df=length(x)-1)
   fpr =  1 / (1 + likelihood)
   
-  return(fpr < 0.05)
+  return(fpr <= 0.05)
 }
