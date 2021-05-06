@@ -51,10 +51,13 @@ interval_based = function(x, mpsd, mu_0=100) {
 
 t_test_max = function(x, mpsd, mu_0=100) {
   #' We calculate the least favourable p-value under the thick null hypothesis:
-  #' p = max_{mu_0-mpsd <= mu <= mu_0+mpsd} 2 min(P(T > t | H_0), P(T < t | H_0))
-  #'   = 1 if x_bar in thick null
-  #'   = 2 P(T > |t| | mu_0 + mpsd) if x_bar > mu_0 + mpsd
-  #'   = 2 P(T > |t| | mu_0 - mpsd) if x_bar < mu_0 - mpsd
+  #' p = 2 min(p_max,right, p_max,left)
+  #'   
+  #' with
+  #' 
+  #' p_max,right = max_{mu_0-mpsd <= mu* <= mu_0+mpsd} P(T > t | mu=mu*)
+  #' p_max,left = max_{mu_0-mpsd <= mu* <= mu_0+mpsd} P(T < t | mu=mu*)
+  #' 
   #' We reject H_0 if p < alpha = 0.05
   #' 
   #' As Peter noticed, this is equivalent to the interval based method (at least in the t-test context).
@@ -85,8 +88,8 @@ t_test_bayes = function(x, mpsd, mu_0=100) {
   #'   
   #' with
   #' 
-  #' P(T > t | H_0) = E_{mu ~ H_0}(P(T > t | mu))
-  #'                = int_{mu_0-mpsd}^{mu_0+mpsd} f_{H_0}(mu) P(T > t | mu) d mu
+  #' P(T > t | H_0) = E_{mu* ~ H_0}(P(T > t | mu=mu*))
+  #'                = int_{mu_0-mpsd}^{mu_0+mpsd} f_{H_0}(mu) P(T > t | mu=mu*) d mu*
   #' 
   #' To calculate this we need the distribution of mu under the thick null f_{H_0}.
   #' Usually we don't have that, we need to assume some distribution, that's what's
