@@ -18,6 +18,13 @@ goodman_nominal_power = function(alpha, sigma, n, mpsd, true_mean){
   return(1-pnorm(qnorm(1 - alpha/2, mean = true_mean, sd = sigma/sqrt(n)), true_mean+mpsd, sigma/sqrt(n)))
 }
 
+calculate_relativeMPSD_deciles <- function(MPSD, sigma){
+  # thats how Goodman calculates the deciles of the relativeMPSD
+  # ARGS: MPSD: vector of all MPSD values; sigma: vecotr of all sigma values
+  # RETURN: vector of length 11 with range for the i-th decile from vector[i] to vector[i+1]
+  return(as.vector(quantile(MPSD / sigma, prob = seq(0, 1, length = 11))))
+}
+
 calculate_impact_of_power = function(results, methods=METHODS) {
   #' Function to calculate proportions of implied inferences that were consistent 
   #' with the fact for each combination of approach, power and fact (s. Goodman table 2)
