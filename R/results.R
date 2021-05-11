@@ -7,10 +7,34 @@ PALETTE = c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2",
 # helper functions
 
 nominal_power = function(alpha, sigma, n, mpsd) {
-  #' Function to calculate the nominal power based on conventional power calculations
-  #' I.e. the probability that a one sample two sided z-test with alternative hypothesis mu_1 = mu_0 + mpsd
-  #' rejects H_0 given H_1 is true
-  return(pnorm(mpsd / sigma * sqrt(n) - qnorm(1 - alpha/2)) + 1 - pnorm(mpsd / sigma * sqrt(n) + qnorm(1 - alpha/2)))
+  #' Function to calculate the nominal power
+  #' which is the the probability that a one sample two sided z-test
+  #' rejects H_0 given H_1: mu_1 = mu_0 + mpsd is true
+  #' 
+  #' H_0 is rejected if
+  #' 1. Z = (mean(X) - mu_0) / sigma * sqrt(n) >  1.96
+  #' 2. Z < -1.96
+  #' Therefore, the power is the probability that 1. or 2. happens 
+  #' given that H_1 is true.
+  #' 
+  #' In their implementation, Goodman et al. ignore the second case and compute
+  #' only the probability of 1. given H_1.
+  #' This is ok because P(2. | H_1) is very small: In the worst case
+  #' (sigma=60, n=5, mpsd=2) it is still smaller than 3%.
+  #' Still, we use the slightly more accurate implementation here hence our 
+  #' nominal power will always be slightly smaller than the one in the original
+  #' paper.
+  
+  # This is what Goodman et al. calculate
+  #return(
+  #  pnorm(qnorm(1-alpha/2) - mpsd / sigma * sqrt(n), lower.tail=FALSE)
+  #)
+  
+  return(
+    pnorm(qnorm(alpha/2) - mpsd / sigma * sqrt(n), lower.tail=TRUE) 
+    + pnorm(qnorm(1-alpha/2) - mpsd / sigma * sqrt(n), lower.tail=FALSE)
+  )
+  
 }
 
 calculate_impact_of_power = function(results, methods=METHODS) {
