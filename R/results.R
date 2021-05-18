@@ -181,7 +181,7 @@ calculate_error_rates = function(results, methods=METHODS) {
   errors$true_negatives = sapply(methods, function(method) sum(!results$fact & !results[,method])/sum(!results$fact))  # aka specificity
   errors$false_negatives = sapply(methods, function(method) sum(results$fact & !results[,method])/sum(results$fact))  # aka 1 - power
   errors$accuracy = sapply(methods, function(method) sum(results$fact == results[,method])/nrow(results))
-  errors$false_discovery_rate = sapply(methods, function(method) sum(!results$fact & results[,method])/(sum(results$fact))) # FDR = false positives / total positives
+  errors$false_discovery_rate = sapply(methods, function(method) sum(!results$fact & results[,method])/sum(results[,method])) # FDR = false positives/(fale positives+true positives)
   return(errors)
 }
 
