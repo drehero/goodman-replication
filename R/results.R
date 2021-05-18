@@ -136,7 +136,6 @@ plot_impact_of_MPSD = function(results, methods=METHODS) {
   #' of the null on inference success (s. Goodman Table 3)
   #' 
   #' results: Dataframe of post processed simulation results
-  #' true_loc_within: TRUE if true location falls within bounds of thick null, else FASLE
   #' methods: Vector of method names, specifying the methods to plot
   impact = calculate_impact_of_MPSD(results, methods)
   par(mar=c(4, 0, 4, 0), mfrow=c(1, 2), oma=c(0.5, 4, 0.5, 0.5), xpd=TRUE, cex=0.8)
@@ -169,6 +168,22 @@ plot_impact_of_MPSD = function(results, methods=METHODS) {
         side=3, outer=TRUE, cex=1, padj=1.5)
 }
 
+
+calculate_error_rates = function(results, methods=METHODS) {
+  #' Function to calculte true positives, false positives, true negatives, false
+  #' negatives, accuracy and false discovery rate of methods (s. Goodman Figure A7)
+  #' 
+  #' results: Dataframe of simulation results
+  #' methods: Vector of method names, specifying the methods to calculate the error rates for 
+  errors = data.frame(method=methods, row.names="method")
+  errors$true_positives = sapply(methods, function(method) sum(results$fact & results[,method])/sum(results$fact))  # aka sensitivity
+  errors$false_positives = sapply(methods, function(method) sum(!results$fact & results[,method])/sum(!results$fact))  # aka type I error alpha
+  errors$true_negatives = sapply(methods, function(method) sum(!results$fact & !results[,method])/sum(!results$fact))  # aka specificity
+  errors$false_negatives = sapply(methods, function(method) sum(results$fact & !results[,method])/sum(results$fact))  # aka 1 - power
+  errors$accuracy = sapply(methods, function(method) sum(results$fact == results[,method])/nrow(results))
+  errors$false_discovery_rate = sapply(methods, function(method) sum(!results$fact & results[,method])/(sum(results$fact))) # FDR = false positives / total positives
+  return(errors)
+}
 
 
 # postprocessing: add additional columns needed for evaluation
@@ -207,20 +222,20 @@ goodman_methods = c("conventional", "small_alpha", "mesp", "distance_only", "int
 table_2 = calculate_impact_of_power(results, goodman_methods)
 print(table_2)
 
-impact_of_power = calculate_impact_of_power(results, c(goodman_methods, "bayesian_t_test", "eq_test"))
+impact_of_power = calculate_impact_of_power(results, c(goodman_methods, "bayesian_t_test"))
 View(impact_of_power)
 
 ## Figure 3
 plot_impact_of_power(results, methods=goodman_methods)
 plot_impact_of_power(results)
-plot_impact_of_power(results, c(goodman_methods, "bayesian_t_test", "eq_test"))
+plot_impact_of_power(results, c(goodman_methods, "bayesian_t_test"))
 
 
 ## Table 3
 
 table_3 = calculate_impact_of_MPSD(results, goodman_methods)
 print(table_3)
-impact_of_mpsd = calculate_impact_of_MPSD(results, c(goodman_methods, "bayesian_t_test", "eq_test"))
+impact_of_mpsd = calculate_impact_of_MPSD(results, c(goodman_methods, "bayesian_t_test"))
 View(impact_of_mpsd)
 
 
@@ -229,16 +244,12 @@ View(impact_of_mpsd)
 ## Plot of Table 3
 plot_impact_of_MPSD(results, goodman_methods)
 plot_impact_of_MPSD(results)
-plot_impact_of_MPSD(results, c(goodman_methods, "bayesian_t_test", "eq_test"))
+plot_impact_of_MPSD(results, c(goodman_methods, "bayesian_t_test"))
 
 
-## Check errors
-errors = data.frame(method=METHODS)
-errors$true_positives = sapply(METHODS, function(method) sum(results$fact & results[,method])/sum(results$fact))  # aka sensitivity
-errors$false_positives = sapply(METHODS, function(method) sum(!results$fact & results[,method])/sum(!results$fact))  # aka type I error alpha
-errors$true_negatives = sapply(METHODS, function(method) sum(!results$fact & !results[,method])/sum(!results$fact))  # aka specificity
-errors$false_negatives = sapply(METHODS, function(method) sum(results$fact & !results[,method])/sum(results$fact))  # aka 1 - power
-errors$accuracy = sapply(METHODS, function(method) sum(results$fact == results[,method])/nrow(results))
-errors$balanced_accuracy = (errors$true_positives + errors$true_negatives)/2
+## Error rates, accuracy and false discovery rate (Figure A7)
+print(calculate_error_rates(results, goodman_methods))
+print(calculate_error_rates(results))
+errors = calculate_error_rates(results, c(goodman_methods, "bayesian_t_test"))
 View(errors)
 
