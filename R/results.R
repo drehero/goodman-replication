@@ -203,24 +203,24 @@ for (method in METHODS) {
 # proportions of implied inferences that were consistent with the fact for each 
 # combination of approach, power and fact
 
-goodman_methods = c("t_test", "t_test_strict", "mesp", "distance_only", "interval_based")
+goodman_methods = c("conventional", "small_alpha", "mesp", "distance_only", "interval_based")
 table_2 = calculate_impact_of_power(results, goodman_methods)
 print(table_2)
 
-impact_of_power = calculate_impact_of_power(results, c(goodman_methods, "t_test_bayes", "eq_test"))
+impact_of_power = calculate_impact_of_power(results, c(goodman_methods, "bayesian_t_test", "eq_test"))
 View(impact_of_power)
 
 ## Figure 3
 plot_impact_of_power(results, methods=goodman_methods)
 plot_impact_of_power(results)
-plot_impact_of_power(results, c(goodman_methods, "t_test_bayes", "eq_test"))
+plot_impact_of_power(results, c(goodman_methods, "bayesian_t_test", "eq_test"))
 
 
 ## Table 3
 
 table_3 = calculate_impact_of_MPSD(results, goodman_methods)
 print(table_3)
-impact_of_mpsd = calculate_impact_of_MPSD(results, c(goodman_methods, "t_test_bayes", "eq_test"))
+impact_of_mpsd = calculate_impact_of_MPSD(results, c(goodman_methods, "bayesian_t_test", "eq_test"))
 View(impact_of_mpsd)
 
 
@@ -229,7 +229,7 @@ View(impact_of_mpsd)
 ## Plot of Table 3
 plot_impact_of_MPSD(results, goodman_methods)
 plot_impact_of_MPSD(results)
-plot_impact_of_MPSD(results, c(goodman_methods, "t_test_bayes", "eq_test"))
+plot_impact_of_MPSD(results, c(goodman_methods, "bayesian_t_test", "eq_test"))
 
 
 ## Check errors
