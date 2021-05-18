@@ -181,8 +181,43 @@ calculate_error_rates = function(results, methods=METHODS) {
   errors$true_negatives = sapply(methods, function(method) sum(!results$fact & !results[,method])/sum(!results$fact))  # aka specificity
   errors$false_negatives = sapply(methods, function(method) sum(results$fact & !results[,method])/sum(results$fact))  # aka 1 - power
   errors$accuracy = sapply(methods, function(method) sum(results$fact == results[,method])/nrow(results))
-  errors$false_discovery_rate = sapply(methods, function(method) sum(!results$fact & results[,method])/sum(results[,method])) # FDR = false positives/(fale positives+true positives)
+  errors$false_discovery_rate = sapply(methods, function(method) sum(!results$fact & results[,method])/sum(results[,method])) # FDR = false positives/(false positives+true positives)
   return(errors)
+}
+
+
+calculate_impact_of_power_on_false_discovery_rate = function(results, methods=METHODS) {
+  #' Function to calculate false discovery rates for each combination of approach and power
+  #' FDR = false positives / (false positives + true positives)
+  #' 
+  #' results: Dataframe of post processed simulation results
+  #' methods: Vector of method names, specifying the methods to calculate the impact for
+  results$power_bins = .bincode(results$power, breaks=c(0, 0.3, 0.8, 1), right=TRUE)
+  impact = data.frame()
+  for (power_bin in 3:1) {
+    res = results[(results$power_bin == power_bin), ]
+    proportions = sapply(methods, function(method) sum(res[, method] & !res$fact) / sum(res[, method]))
+    row = list(power=power_bin)
+    impact = rbind(impact, c(row, proportions))
+  }
+  return(impact)
+}
+
+calculate_impact_of_power_on_false_omission_rate = function(results, methods=METHODS) {
+  #' Function to calculate false omission rates for each combination of approach and power
+  #' FOR = false negatives / (false negatives + true negatives)
+  #' 
+  #' results: Dataframe of post processed simulation results
+  #' methods: Vector of method names, specifying the methods to calculate the impact for
+  results$power_bins = .bincode(results$power, breaks=c(0, 0.3, 0.8, 1), right=TRUE)
+  impact = data.frame()
+  for (power_bin in 3:1) {
+    res = results[(results$power_bin == power_bin), ]
+    proportions = sapply(methods, function(method) sum(!res[, method] & res$fact) / sum(!res[, method]))
+    row = list(power=power_bin)
+    impact = rbind(impact, c(row, proportions))
+  }
+  return(impact)
 }
 
 
@@ -252,4 +287,17 @@ print(calculate_error_rates(results, goodman_methods))
 print(calculate_error_rates(results))
 errors = calculate_error_rates(results, c(goodman_methods, "bayesian_t_test"))
 View(errors)
+
+
+## Impact of power on false discovery rate
+print(calculate_impact_of_power_on_false_discovery_rate(results))
+impact_power_on_fdr = calculate_impact_of_power_on_false_discovery_rate(results, c(goodman_methods, "bayesian_t_test"))
+View(impact_power_on_fdr)
+
+
+## Impact of power on false omission rate
+print(calculate_impact_of_power_on_false_omission_rate(results))
+impact_power_on_for = calculate_impact_of_power_on_false_omission_rate(results, c(goodman_methods, "bayesian_t_test"))
+View(impact_power_on_for)
+
 
