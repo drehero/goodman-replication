@@ -1,12 +1,12 @@
 library(TOSTER)
 # Methods to be tested in the simulation
 
-METHODS = c("t_test", "t_test_strict", "mesp", "distance_only", "interval_based",
-            "t_test_max", "t_test_bayes", 
+METHODS = c("conventional", "small_alpha", "mesp", "distance_only", "interval_based",
+            "t_test_max", "bayesian_t_test", 
             "eq_test", "eq_test_2", "betensky", "false_positive_risk")
 # get(METHODS[1])(x, MPSD) to use
 
-t_test = function(x, mpsd=NULL, mu_0=100) {
+conventional = function(x, mpsd=NULL, mu_0=100) {
   #' Conventional: two tailed t-test with alpha=0.05
   #' same as t.test(x, mu=mu_0, alternative="two.sided")$p.value < 0.05
   t = (mean(x) - mu_0) / sd(x) * sqrt(length(x))
@@ -14,7 +14,7 @@ t_test = function(x, mpsd=NULL, mu_0=100) {
   return(p <= 0.05)
 }
 
-t_test_strict = function(x, mpsd=NULL, mu_0=100) {
+small_alpha = function(x, mpsd=NULL, mu_0=100) {
   #' Small alpha: two tailed t-test with alpha=0.005
   #' same as t.test(x, mu=mu_0, alternative="two.sided")$p.value < 0.005
   t = (mean(x) - mu_0) / sd(x) * sqrt(length(x))
@@ -25,7 +25,7 @@ t_test_strict = function(x, mpsd=NULL, mu_0=100) {
 mesp = function(x, mpsd, mu_0=100) {
   #' Minimum effect size plus p-value
   #' proposed by Goodman et al. 2019
-  return(t_test(x, mpsd, mu_0) & distance_only(x, mpsd, mu_0))
+  return(conventional(x, mpsd, mu_0) & distance_only(x, mpsd, mu_0))
 }
 
 distance_only = function(x, mpsd, mu_0=100) {
@@ -87,7 +87,8 @@ t_test_max = function(x, mpsd, mu_0=100) {
   return(p_max <= 0.05)
 }
 
-t_test_bayes = function(x, mpsd, mu_0=100) {
+
+bayesian_t_test = function(x, mpsd, mu_0=100) {
   #' We calculate the expected point-p-value under the thick null hypothesis,
   #' where the point-p-value is the probability to get a more extreme result with respect 
   #' to mu_0 given that mu is really equal to some specific value mu* in [mu_0-mpsd,mu_0+mpsd]:
