@@ -50,19 +50,26 @@ interval_based = function(x, mpsd, mu_0=100) {
 # Methods that are not in Goodman et al.:
 
 t_test_max = function(x, mpsd, mu_0=100) {
-  #' We calculate the least favourable p-value under the thick null hypothesis:
-  #' p = 2 min(p_max,right, p_max,left)
-  #'   
+  #' We calculate the least favorable point-p-value under the thick null hypothesis,
+  #' where the point-p-value is the probability to get a more extreme result with respect 
+  #' to mu_0 given that mu is really equal to some specific value mu* in [mu_0-mpsd,mu_0+mpsd]:
+  #' 
+  #' p = max_{mu_0-mpsd <= mu* <= mu_0+mpsd} P(|mean(X)-mu_0| > |mean(x)-mu_0| | mu=mu*)
+  #' 
   #' with
   #' 
-  #' p_max,right = max_{mu_0-mpsd <= mu* <= mu_0+mpsd} P(T > t | mu=mu*)
-  #' p_max,left = max_{mu_0-mpsd <= mu* <= mu_0+mpsd} P(T < t | mu=mu*)
+  #' P(|mean(X)-mu_0| > |mean(x)-mu_0| | mu=mu*)
+  #' = P(mean(X)-mu_0 > |mean(x)-mu_0| | mu=mu*) + P(mean(X)-mu_0 < -|mean(x)-mu_0| | mu=mu*)
+  #' = P((mean(X)-mu*)/sd(x)*sqrt(n) > (mu_0 + |mean(x)-mu_0| - mu*)/sd(x)*sqrt(n) | mu=mu*)
+  #'   + P((mean(X)-mu*)/sd(x)*sqrt(n) < (mu_0 - |mean(x)-mu_0| - mu*)/sd(x)*sqrt(n) | mu=mu*)
+  #' = pt((mu_0 + |mean(x)-mu_0| - mu*)/sd(x)*sqrt(n), df=length(x)-1, lower.tail=FALSE)
+  #'   + pt((mu_0 - |mean(x)-mu_0| - mu*)/sd(x)*sqrt(n), df=length(x)-1, lower.tail=TRUE)
+  #'   
+  #' where pt is the cdf of the t-distribution.
+  #'   
+  #' 
   #' 
   #' We reject H_0 if p < alpha = 0.05
-  #' 
-  #' As Peter noticed, this is equivalent to the interval based method (at least in the t-test context).
-  #' Still, I (Arne) think it is a nicer way to derive it, because its grounded in the established
-  #' p-value-context and not in some vague intuitions about intervals
   #'   
   #' Motivation:
   #' 1. Familarity: This is exactly what we do when we calculate the p-value for a one sided test
@@ -71,33 +78,43 @@ t_test_max = function(x, mpsd, mu_0=100) {
   #'           at most alpha, which is exactly what we expect from a statistical test that has
   #'           an alpha parameter
   
-  dif = abs(mean(x) - mu_0)
-  if (dif <= mpsd) {
-    return(FALSE)
-  }
-  t = (dif - mpsd) / sd(x) * sqrt(length(x))
-  p = 2 * pt(abs(t), df=length(x)-1, lower.tail=FALSE)
-  return(p <= 0.05)
+  mu_point = (mu_0 - mpsd):(mu_0 + mpsd)
+  t_right  = (mu_0 + abs(mean(x) - mu_0) - mu_point) / sd(x) * sqrt(length(x))
+  t_left   = (mu_0 - abs(mean(x) - mu_0) - mu_point) / sd(x) * sqrt(length(x))
+  p = pt(t_right, df=length(x)-1, lower.tail=FALSE) + pt(t_left, df=length(x)-1, lower.tail=TRUE)
+  p_max = max(p)
+  
+  return(p_max <= 0.05)
 }
 
 t_test_bayes = function(x, mpsd, mu_0=100) {
-  #' We calculate the expected p-value under the thick null hypothesis:
+  #' We calculate the expected point-p-value under the thick null hypothesis,
+  #' where the point-p-value is the probability to get a more extreme result with respect 
+  #' to mu_0 given that mu is really equal to some specific value mu* in [mu_0-mpsd,mu_0+mpsd]:
   #' 
-  #' p = 2 min(P(T > t | H_0), P(T < t | H_0))
-  #'   = 2 min(P(T > t | H_0), 1 - P(T > t | H_0))
-  #'   
+  #' p = P(|mean(X)-mu_0| > |mean(x)-mu_0| | mu in [mu_0-mpsd,mu_0+mpsd])
+  #'   = E(P(|mean(X)-mu_0| > |mean(x)-mu_0| | mu = mu*) | mu* in [mu_0-mpsd,mu_0+mpsd])
+  #'   = int_{mu* in [mu_0-mpsd,mu_0+mpsd]} P(|mean(X)-mu_0| > |mean(x)-mu_0| | mu=mu*) f_{H_0}(mu*) dmu*
+  #' 
   #' with
   #' 
-  #' P(T > t | H_0) = E_{mu* ~ H_0}(P(T > t | mu=mu*))
-  #'                = int_{mu_0-mpsd}^{mu_0+mpsd} f_{H_0}(mu) P(T > t | mu=mu*) d mu*
+  #' P(|mean(X)-mu_0| > |mean(x)-mu_0| | mu=mu*)
+  #' = P(mean(X)-mu_0 > |mean(x)-mu_0| | mu=mu*) + P(mean(X)-mu_0 < -|mean(x)-mu_0| | mu=mu*)
+  #' = P((mean(X)-mu*)/sd(x)*sqrt(n) > (mu_0 + |mean(x)-mu_0| - mu*)/sd(x)*sqrt(n) | mu=mu*)
+  #'   + P((mean(X)-mu*)/sd(x)*sqrt(n) < (mu_0 - |mean(x)-mu_0| - mu*)/sd(x)*sqrt(n) | mu=mu*)
+  #' = pt((mu_0 + |mean(x)-mu_0| - mu*)/sd(x)*sqrt(n), df=length(x)-1, lower.tail=FALSE)
+  #'   + pt((mu_0 - |mean(x)-mu_0| - mu*)/sd(x)*sqrt(n), df=length(x)-1, lower.tail=TRUE)
+  #' 
+  #' where pt is the cdf of the t-distribution.
+  #' 
   #' 
   #' To calculate this we need the distribution of mu under the thick null f_{H_0}.
   #' Usually we don't have that, we need to assume some distribution, that's what's
   #' Bayesian about the method.
-  #' Since we are doing a simulation, we know that mu ~ U(mu-mpsd, mu+mpsd) wher
+  #' Since we are doing a simulation, we know that mu ~ U(mu-mpsd, mu+mpsd) where
   #' U is the uniform distribution on the integers in the thick null interval. Hence:
   #' 
-  #' P(T > t | H_0) = 1/(2mpsd+1) sum_{mu = mu_0-mpsd}^{mu_0+mpsd} P(T > t | mu)
+  #' p = sum_{mu* in [mu_0-mpsd,mu_0+mpsd]} P(|mean(X)-mu_0| > |mean(x)-mu_0| | mu=mu*) / (2mpsd+1)
   #' 
   #' We reject H_0 if p < alpha = 0.05
   #' 
@@ -105,11 +122,13 @@ t_test_bayes = function(x, mpsd, mu_0=100) {
   #' Alpha: If our assumption about the distribution of mu is correct, this test 
   #'        guarantees that the probability to make a type one error is exactly alpha
   
-  mu = (mu_0 - mpsd):(mu_0 + mpsd)
-  t = (mean(x) - mu) / sd(x) * sqrt(length(x))
-  p_right = sum(pt(t, df=length(x)-1, lower.tail=FALSE)) / (2 * mpsd + 1)
-  p = 2 * min(p_right, 1-p_right)
-  return(p <= 0.05)
+  mu_point = (mu_0 - mpsd):(mu_0 + mpsd)
+  t_right  = (mu_0 + abs(mean(x) - mu_0) - mu_point) / sd(x) * sqrt(length(x))
+  t_left   = (mu_0 - abs(mean(x) - mu_0) - mu_point) / sd(x) * sqrt(length(x))
+  p = pt(t_right, df=length(x)-1, lower.tail=FALSE) + pt(t_left, df=length(x)-1, lower.tail=TRUE)
+  p_exp = mean(p)
+
+  return(p_exp <= 0.05)
 }
 
 
