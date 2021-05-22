@@ -38,11 +38,11 @@ calculate_impact_of_power = function(results, methods=METHODS) {
   #' 
   #' results: Dataframe of post processed simulation results
   #' methods: Vector of method names, specifying the methods to calculate the impact for
-  results$power_bins = .bincode(results$power, breaks=c(0, 0.3, 0.8, 1), right=TRUE)
+  power_bins = .bincode(results$power, breaks=c(0, 0.3, 0.8, 1), right=TRUE)
   impact = data.frame()
   for (fact in c(FALSE, TRUE)) {
     for (power_bin in 3:1) {
-      res = results[(results$power_bin == power_bin & results$fact == fact), ]
+      res = results[(power_bins == power_bin & results$fact == fact), ]
       num_cases = dim(res)[1]
       proportions = sapply(methods, function(method) sum(res[, method] == res$fact) / num_cases)
       row = list(true_location_within_thick_null=!fact, power=power_bin, number_simulated_cases=num_cases)
@@ -186,10 +186,10 @@ calculate_impact_of_power_on_false_discovery_rate = function(results, methods=ME
   #' 
   #' results: Dataframe of post processed simulation results
   #' methods: Vector of method names, specifying the methods to calculate the impact for
-  results$power_bins = .bincode(results$power, breaks=c(0, 0.3, 0.8, 1), right=TRUE)
+  power_bins = .bincode(results$power, breaks=c(0, 0.3, 0.8, 1), right=TRUE)
   impact = data.frame()
   for (power_bin in 3:1) {
-    res = results[(results$power_bin == power_bin), ]
+    res = results[(power_bins == power_bin), ]
     proportions = sapply(methods, function(method) sum(res[, method] & !res$fact) / sum(res[, method]))
     row = list(power=power_bin)
     impact = rbind(impact, c(row, proportions))
@@ -203,10 +203,10 @@ calculate_impact_of_power_on_false_omission_rate = function(results, methods=MET
   #' 
   #' results: Dataframe of post processed simulation results
   #' methods: Vector of method names, specifying the methods to calculate the impact for
-  results$power_bins = .bincode(results$power, breaks=c(0, 0.3, 0.8, 1), right=TRUE)
+  power_bins = .bincode(results$power, breaks=c(0, 0.3, 0.8, 1), right=TRUE)
   impact = data.frame()
   for (power_bin in 3:1) {
-    res = results[(results$power_bin == power_bin), ]
+    res = results[(power_bins == power_bin), ]
     proportions = sapply(methods, function(method) sum(!res[, method] & res$fact) / sum(!res[, method]))
     row = list(power=power_bin)
     impact = rbind(impact, c(row, proportions))
