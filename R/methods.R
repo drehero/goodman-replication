@@ -1,7 +1,10 @@
 library(TOSTER)
 # Methods to be tested in the simulation
 
-METHODS = c("conventional", "small_alpha", "mesp", "distance_only", "interval_based",
+# Methods in GSK
+GSK_METHODS = c("conventional", "small_alpha", "mesp", "distance_only", "interval_based")
+
+METHODS = c(GSK_METHODS,
             "t_test_max", "bayesian_t_test", 
             "eq_test", "eq_test_2", "betensky", "false_positive_risk")
 # get(METHODS[1])(x, MPSD) to use
@@ -24,7 +27,7 @@ small_alpha = function(x, mpsd=NULL, mu_0=100) {
 
 mesp = function(x, mpsd, mu_0=100) {
   #' Minimum effect size plus p-value
-  #' proposed by Goodman et al. 2019
+  #' proposed by GSK
   return(conventional(x, mpsd, mu_0) & distance_only(x, mpsd, mu_0))
 }
 
@@ -38,16 +41,16 @@ interval_based = function(x, mpsd, mu_0=100) {
   #' 
   #' important: We use the confidence interval that assumes the t statistic we 
   #' calculated is t-distributed while
-  #' et al. use the confidence interval that assumes that the t statistic is normal
+  #' GSK use the confidence interval that assumes that the t statistic is normal
   #' distributed
   #' -> For small n, our confidence interval will be bigger
-  #' e.g. for minimal n = 5 our CI will be 2.77/1.96 = 1.41 times the size of goodmans
+  #' e.g. for minimal n = 5 our CI will be 2.77/1.96 = 1.41 times the size of GSK
   #' -> Our test is less likely to reject H0
   return(abs(mean(x) - mu_0) > sd(x) / sqrt(length(x)) * qt(0.975, length(x)-1) + mpsd)
 }
 
 
-# Methods that are not in Goodman et al.:
+# Methods that are not in GSK:
 
 t_test_max = function(x, mpsd, mu_0=100) {
   #' We calculate the least favorable point-p-value under the thick null hypothesis,
@@ -167,7 +170,7 @@ eq_test_2 = function(x, mpsd, mu_0=100) {
 }
 
 betensky = function(x, mpsd, mu_0=100) {
-  #' same as the interval based method from Goodman but instead of the symmetric confidence interval
+  #' same as the interval based method from GSK but instead of the symmetric confidence interval
   #'  we choose the one sided confidence interval (mu*, infty) for the absolute effect size
 
   return(abs(mean(x) - mu_0) > sd(x) / sqrt(length(x)) * qt(0.95, length(x)-1) + mpsd)
