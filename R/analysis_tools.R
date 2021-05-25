@@ -108,7 +108,11 @@ plot_impact_of_power = function(results, methods=METHODS) {
     for (i in 1:length(methods)) {
       method = methods[i]
       col = PALETTE[i]
-      legend_col[[method]] = col
+      if (method %in% names(METHOD_NAMES)) {
+        legend_col[[METHOD_NAMES[[method]]]] = col
+      } else {
+        legend_col[[method]] = col
+      }
       y = rev(impact[impact$true_location_within_thick_null == is_within, method])
       lines(x=c(1, 2, 3), y=y, type="o", pch=19, col=col, lwd=3) 
     }
@@ -144,7 +148,11 @@ plot_impact_of_MPSD = function(results, methods=METHODS) {
     for (i in 1:length(methods)) {
       method = methods[i]
       col = PALETTE[i]
-      legend_col[[method]] = col
+      if (method %in% names(METHOD_NAMES)) {
+        legend_col[[METHOD_NAMES[[method]]]] = col
+      } else {
+        legend_col[[method]] = col
+      }
       y = impact[impact$true_location_within_thick_null == true_loc_within, method]
       lines(x=seq(1, 10), y=y, type="o", pch=19, col=col, lwd=3) 
     }
