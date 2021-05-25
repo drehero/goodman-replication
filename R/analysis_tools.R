@@ -178,13 +178,14 @@ calculate_error_rates = function(results, methods=METHODS) {
   #' results: Dataframe of simulation results
   #' methods: Vector of method names, specifying the methods to calculate the error rates for 
   errors = data.frame(method=methods, row.names="method")
+  errors$accuracy = sapply(methods, function(method) sum(results$fact == results[,method])/nrow(results))
   errors$true_positives = sapply(methods, function(method) sum(results$fact & results[,method])/sum(results$fact))  # aka sensitivity
   errors$false_positives = sapply(methods, function(method) sum(!results$fact & results[,method])/sum(!results$fact))  # aka type I error alpha
   errors$true_negatives = sapply(methods, function(method) sum(!results$fact & !results[,method])/sum(!results$fact))  # aka specificity
   errors$false_negatives = sapply(methods, function(method) sum(results$fact & !results[,method])/sum(results$fact))  # aka 1 - power
-  errors$accuracy = sapply(methods, function(method) sum(results$fact == results[,method])/nrow(results))
-  errors$false_discovery_rate = sapply(methods, function(method) sum(!results$fact & results[,method])/sum(results[,method])) # FDR = false positives/(false positives+true positives)
-  return(errors)
+  errors$false_discovery_rate = sapply(methods, function(method) sum(!results$fact & results[,method])/sum(results[,method]))  # FDR = false positives/(false positives+true positives)
+  errors$false_omission_rate = sapply(methods, function(method) sum(results$fact & !results[,method])/sum(!results[, method]))  # FOR = false negatives/(false negatives+true negatives)
+  return(t(errors))
 }
 
 
