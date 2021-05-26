@@ -4,6 +4,8 @@ TODO
 ## Dependencies
 TODO (Do we keep the eq_test in the repo? otherwise we have no dependencies besied R)
 
+TODO We should also make sure the code can be executed in vanilla R, because I think for example `View()` is a RStudio specific function (or just add RStudio as a dependency)
+
 ## Usage
 
 ### Replication
