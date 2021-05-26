@@ -17,7 +17,7 @@ for (method in methods) {
   impact_on_fdr_for[[method]] = impact_on_fdr_for[[method]]*100
   
   if (method %in% names(METHOD_NAMES)) {
-    rownames(errors)[rownames(errors) == method] = METHOD_NAMES[[method]]
+    colnames(errors)[colnames(errors) == method] = METHOD_NAMES[[method]]
     colnames(impact_power)[colnames(impact_power) == method] = METHOD_NAMES[[method]]
     colnames(impact_mpsd)[colnames(impact_mpsd) == method] = METHOD_NAMES[[method]]
     colnames(impact_on_fdr_for)[colnames(impact_on_fdr_for) == method] = METHOD_NAMES[[method]]
