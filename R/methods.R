@@ -9,6 +9,16 @@ METHODS = c(GSK_METHODS,
             "eq_test", "eq_test_2", "betensky", "false_positive_risk")
 # get(METHODS[1])(x, MPSD) to use
 
+# How method names are displayed in plots can be set here (optional)
+METHOD_NAMES = list(
+  "conventional"="Conventional",
+  "small_alpha"="Small Alpha",
+  "mesp"="MESP",
+  "distance_only"="Distance-Only",
+  "interval_based"="Interval-Based",
+  "bayesian_t_test"="Bayesian t-test"
+)
+
 conventional = function(x, mpsd=NULL, mu_0=100) {
   #' Conventional: two tailed t-test with alpha=0.05
   #' same as t.test(x, mu=mu_0, alternative="two.sided")$p.value < 0.05

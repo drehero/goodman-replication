@@ -108,7 +108,11 @@ plot_impact_of_power = function(results, methods=METHODS) {
     for (i in 1:length(methods)) {
       method = methods[i]
       col = PALETTE[i]
-      legend_col[[method]] = col
+      if (method %in% names(METHOD_NAMES)) {
+        legend_col[[METHOD_NAMES[[method]]]] = col
+      } else {
+        legend_col[[method]] = col
+      }
       y = rev(impact[impact$true_location_within_thick_null == is_within, method])
       lines(x=c(1, 2, 3), y=y, type="o", pch=19, col=col, lwd=3) 
     }
@@ -144,7 +148,11 @@ plot_impact_of_MPSD = function(results, methods=METHODS) {
     for (i in 1:length(methods)) {
       method = methods[i]
       col = PALETTE[i]
-      legend_col[[method]] = col
+      if (method %in% names(METHOD_NAMES)) {
+        legend_col[[METHOD_NAMES[[method]]]] = col
+      } else {
+        legend_col[[method]] = col
+      }
       y = impact[impact$true_location_within_thick_null == true_loc_within, method]
       lines(x=seq(1, 10), y=y, type="o", pch=19, col=col, lwd=3) 
     }
@@ -170,13 +178,14 @@ calculate_error_rates = function(results, methods=METHODS) {
   #' results: Dataframe of simulation results
   #' methods: Vector of method names, specifying the methods to calculate the error rates for 
   errors = data.frame(method=methods, row.names="method")
+  errors$accuracy = sapply(methods, function(method) sum(results$fact == results[,method])/nrow(results))
   errors$true_positives = sapply(methods, function(method) sum(results$fact & results[,method])/sum(results$fact))  # aka sensitivity
   errors$false_positives = sapply(methods, function(method) sum(!results$fact & results[,method])/sum(!results$fact))  # aka type I error alpha
   errors$true_negatives = sapply(methods, function(method) sum(!results$fact & !results[,method])/sum(!results$fact))  # aka specificity
   errors$false_negatives = sapply(methods, function(method) sum(results$fact & !results[,method])/sum(results$fact))  # aka 1 - power
-  errors$accuracy = sapply(methods, function(method) sum(results$fact == results[,method])/nrow(results))
-  errors$false_discovery_rate = sapply(methods, function(method) sum(!results$fact & results[,method])/sum(results[,method])) # FDR = false positives/(false positives+true positives)
-  return(errors)
+  errors$false_discovery_rate = sapply(methods, function(method) sum(!results$fact & results[,method])/sum(results[,method]))  # FDR = false positives/(false positives+true positives)
+  errors$false_omission_rate = sapply(methods, function(method) sum(results$fact & !results[,method])/sum(!results[, method]))  # FOR = false negatives/(false negatives+true negatives)
+  return(t(errors))
 }
 
 
