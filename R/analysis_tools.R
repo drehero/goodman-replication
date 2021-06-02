@@ -199,8 +199,9 @@ calculate_impact_of_power_on_false_discovery_rate = function(results, methods=ME
   impact = data.frame()
   for (power_bin in 3:1) {
     res = results[(power_bins == power_bin), ]
+    cases = nrow(res)
     proportions = sapply(methods, function(method) sum(res[, method] & !res$fact) / sum(res[, method]))
-    row = list(power=power_bin)
+    row = list(power=power_bin, cases=cases, percentage_thick_null_true=sum(res$fact)/cases)
     impact = rbind(impact, c(row, proportions))
   }
   return(impact)
@@ -216,8 +217,9 @@ calculate_impact_of_power_on_false_omission_rate = function(results, methods=MET
   impact = data.frame()
   for (power_bin in 3:1) {
     res = results[(power_bins == power_bin), ]
+    cases = nrow(res)
     proportions = sapply(methods, function(method) sum(!res[, method] & res$fact) / sum(!res[, method]))
-    row = list(power=power_bin)
+    row = list(power=power_bin, cases=cases, percentage_thick_null_true=sum(res$fact)/cases)
     impact = rbind(impact, c(row, proportions))
   }
   return(impact)
