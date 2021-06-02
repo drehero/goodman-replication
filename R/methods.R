@@ -137,6 +137,10 @@ bayesian_t_test = function(x, mpsd, mu_0=100) {
   #'        guarantees that the probability to make a type one error is exactly alpha
   
   mu_point = (mu_0 - mpsd):(mu_0 + mpsd)
+  
+  # In the continuous case we would instead numerically approximate the integral:
+  #mu_point = seq(mu_0 - mpsd, mu_0 + mpsd, length.out=1000)
+  
   t_right  = (mu_0 + abs(mean(x) - mu_0) - mu_point) / sd(x) * sqrt(length(x))
   t_left   = (mu_0 - abs(mean(x) - mu_0) - mu_point) / sd(x) * sqrt(length(x))
   p = pt(t_right, df=length(x)-1, lower.tail=FALSE) + pt(t_left, df=length(x)-1, lower.tail=TRUE)
