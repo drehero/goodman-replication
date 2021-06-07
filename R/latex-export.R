@@ -23,6 +23,7 @@ for (method in methods) {
     colnames(impact_on_fdr_for)[colnames(impact_on_fdr_for) == method] = METHOD_NAMES[[method]]
   }
 }
+impact_on_fdr_for$percentage_thick_null_true = impact_on_fdr_for$percentage_thick_null_true*100
 
 xtable(errors*100, digits=1, align=strrep("c", ncol(errors)+1), label="tab:error_rates")
 xtable(impact_power, digits=1, align=strrep("c", ncol(impact_power)+1), label="tab:power_comparison")
