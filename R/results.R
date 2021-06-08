@@ -83,3 +83,6 @@ impact_power_on_for = calculate_impact_of_power_on_false_omission_rate(results, 
 print(impact_power_on_for)
 
 
+## (Normalized) impact of power on false discovery rate and false omission rate
+print(calculate_impact_of_power_on_false_discovery_and_omission_rate(results, c(GSK_METHODS, "bayesian_t_test")))
+

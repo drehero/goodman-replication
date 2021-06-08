@@ -224,3 +224,30 @@ calculate_impact_of_power_on_false_omission_rate = function(results, methods=MET
   }
   return(impact)
 }
+
+
+calculate_impact_of_power_on_false_discovery_and_omission_rate = function(results, methods=METHODS) {
+  #' results: Dataframe of post processed simulation results
+  #' methods: Vector of method names, specifying the methods to calculate the impact for
+  impact = calculate_impact_of_power(results, methods)
+  rows = nrow(impact)
+  cols = ncol(impact)
+  
+  fpr = 1 - impact[1:(rows/2), 4:cols]
+  tpr = impact[(rows/2 + 1):rows, 4:cols]
+  FDR = data.frame(fpr / (fpr + tpr))
+  colnames(FDR) = methods
+  
+  tnr = impact[1:(rows/2), 4:cols]
+  fnr = 1 - impact[(rows/2 + 1):(rows), 4:cols]
+  FOR = data.frame(fnr / (fnr + tnr))
+  colnames(FOR) = methods
+  
+  ret = rbind(FDR, FOR)
+  ret = cbind(data.frame(
+    rate=c("FDR", "FDR", "FDR", "FOR", "FOR", "FOR"),
+    power=impact$power,
+    cases=impact$number_simulated_cases[1:(rows/2)] + impact$number_simulated_cases[(rows/2+1):rows]
+  ), ret)
+  return(ret)
+}
