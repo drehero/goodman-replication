@@ -1,8 +1,16 @@
 # import methods needed for postprocessing and analysis
 source("R/analysis_tools.R")
 
-# run simulation and get results
-source("R/simulation.R")
+RERUN_SIMULATION = TRUE
+if (RERUN_SIMULATION) {
+  # run the simulation to get new results (10,000 cases)
+  source("R/simulation.R")
+} else {
+  # load the stored results of a big simulation with 100,000 cases
+  source('R/methods.R')
+  METHODS = c(GSK_METHODS ,"bayesian_t_test")
+  results = read.csv('R/results_100K.csv')
+}
 
 # postprocessing: add additional columns needed for evaluation
 
