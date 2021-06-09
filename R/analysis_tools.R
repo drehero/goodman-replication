@@ -172,17 +172,14 @@ plot_impact_of_MPSD = function(results, methods=METHODS) {
 
 
 calculate_error_rates = function(results, methods=METHODS) {
-  #' Function to calculte true positives, false positives, true negatives, false
-  #' negatives, accuracy and false discovery rate of methods (s. GSK Figure A7)
+  #' Function to calculte accuracy and error rates of methods (s. GSK Figure A7)
   #' 
   #' results: Dataframe of simulation results
   #' methods: Vector of method names, specifying the methods to calculate the error rates for 
   errors = data.frame(method=methods, row.names="method")
   errors$accuracy = sapply(methods, function(method) sum(results$fact == results[,method])/nrow(results))
-  errors$true_positives = sapply(methods, function(method) sum(results$fact & results[,method])/sum(results$fact))  # aka sensitivity
-  errors$false_positives = sapply(methods, function(method) sum(!results$fact & results[,method])/sum(!results$fact))  # aka type I error alpha
-  errors$true_negatives = sapply(methods, function(method) sum(!results$fact & !results[,method])/sum(!results$fact))  # aka specificity
-  errors$false_negatives = sapply(methods, function(method) sum(results$fact & !results[,method])/sum(results$fact))  # aka 1 - power
+  errors$false_positive_rate = sapply(methods, function(method) sum(!results$fact & results[,method])/sum(!results$fact))  # aka type I error alpha
+  errors$false_negative_rate = sapply(methods, function(method) sum(results$fact & !results[,method])/sum(results$fact))  # aka 1 - power
   errors$false_discovery_rate = sapply(methods, function(method) sum(!results$fact & results[,method])/sum(results[,method]))  # FDR = false positives/(false positives+true positives)
   errors$false_omission_rate = sapply(methods, function(method) sum(results$fact & !results[,method])/sum(!results[, method]))  # FOR = false negatives/(false negatives+true negatives)
   return(t(errors))
