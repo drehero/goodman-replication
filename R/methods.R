@@ -5,18 +5,18 @@ library(TOSTER)
 GSK_METHODS = c("conventional", "small_alpha", "mesp", "distance_only", "interval_based")
 
 METHODS = c(GSK_METHODS,
-            "t_test_max", "bayesian_t_test", 
+            "t_test_max", "thick_t_test", 
             "eq_test", "eq_test_2", "betensky", "false_positive_risk")
 # get(METHODS[1])(x, MPSD) to use
 
-# How method names are displayed in plots can be set here (optional)
+# Option to set how method names are displayed in plots
 METHOD_NAMES = list(
   "conventional"="Conventional",
-  "small_alpha"="Small Alpha",
+  "small_alpha"="Small-alpha",
   "mesp"="MESP",
-  "distance_only"="Distance-Only",
-  "interval_based"="Interval-Based",
-  "bayesian_t_test"="Bayesian t-test"
+  "distance_only"="Distance-only",
+  "interval_based"="Interval-based",
+  "thick_t_test"="Thick t-test"
 )
 
 conventional = function(x, mpsd=NULL, mu_0=100) {
@@ -101,7 +101,7 @@ t_test_max = function(x, mpsd, mu_0=100) {
 }
 
 
-bayesian_t_test = function(x, mpsd, mu_0=100) {
+thick_t_test = function(x, mpsd, mu_0=100) {
   #' We calculate the expected point-p-value under the thick null hypothesis,
   #' where the point-p-value is the probability to get a more extreme result with respect 
   #' to mu_0 given that mu is really equal to some specific value mu* in [mu_0-mpsd,mu_0+mpsd]:

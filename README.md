@@ -31,7 +31,7 @@ your_method = function(x, mpsd, mu_0=100) {
 ```
 1. Add the name of your function as a string to the `METHODS` vector in the `methods.R` file. For example: 
 ```R
-METHODS = c(GSK_METHODS, "bayesian_t_test", "your_method")
+METHODS = c(GSK_METHODS, "thick_t_test", "your_method")
 ```
 1. Execute the `results.R` file to run the simulation and get an analysis of the methods. The functions used to analyse the simulation results are defined in `analysis_tools.R` and take as arguments the simulation results and a vector containing the method names for which the results should be analysed. For example:
 ```R

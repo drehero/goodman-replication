@@ -8,7 +8,7 @@ if (RERUN_SIMULATION) {
 } else {
   # load the stored results of a big simulation with 100,000 cases
   source('R/methods.R')
-  METHODS = c(GSK_METHODS ,"bayesian_t_test")
+  METHODS = c(GSK_METHODS ,"thick_t_test")
   results = read.csv('R/results_100K.csv')
 }
 
@@ -47,20 +47,20 @@ for (method in METHODS) {
 table_2 = calculate_impact_of_power(results, GSK_METHODS)
 print(table_2)
 
-impact_of_power = calculate_impact_of_power(results, c(GSK_METHODS, "bayesian_t_test"))
+impact_of_power = calculate_impact_of_power(results, c(GSK_METHODS, "thick_t_test"))
 print(impact_of_power)
 
 ## Figure 3
 plot_impact_of_power(results, methods=GSK_METHODS)
 plot_impact_of_power(results)
-plot_impact_of_power(results, c(GSK_METHODS, "bayesian_t_test"))
+plot_impact_of_power(results, c(GSK_METHODS, "thick_t_test"))
 
 
 ## Table 3
 
 table_3 = calculate_impact_of_MPSD(results, GSK_METHODS)
 print(table_3)
-impact_of_mpsd = calculate_impact_of_MPSD(results, c(GSK_METHODS, "bayesian_t_test"))
+impact_of_mpsd = calculate_impact_of_MPSD(results, c(GSK_METHODS, "thick_t_test"))
 print(impact_of_mpsd)
 
 
@@ -69,28 +69,28 @@ print(impact_of_mpsd)
 ## Plot of Table 3
 plot_impact_of_MPSD(results, GSK_METHODS)
 plot_impact_of_MPSD(results)
-plot_impact_of_MPSD(results, c(GSK_METHODS, "bayesian_t_test"))
+plot_impact_of_MPSD(results, c(GSK_METHODS, "thick_t_test"))
 
 
 ## Error rates, accuracy and false discovery rate (Figure A7)
 print(calculate_error_rates(results, GSK_METHODS))
 print(calculate_error_rates(results))
-errors = calculate_error_rates(results, c(GSK_METHODS, "bayesian_t_test"))
+errors = calculate_error_rates(results, c(GSK_METHODS, "thick_t_test"))
 print(errors)
 
 
 ## Impact of power on false discovery rate
 print(calculate_impact_of_power_on_false_discovery_rate(results))
-impact_power_on_fdr = calculate_impact_of_power_on_false_discovery_rate(results, c(GSK_METHODS, "bayesian_t_test"))
+impact_power_on_fdr = calculate_impact_of_power_on_false_discovery_rate(results, c(GSK_METHODS, "thick_t_test"))
 print(impact_power_on_fdr)
 
 
 ## Impact of power on false omission rate
 print(calculate_impact_of_power_on_false_omission_rate(results))
-impact_power_on_for = calculate_impact_of_power_on_false_omission_rate(results, c(GSK_METHODS, "bayesian_t_test"))
+impact_power_on_for = calculate_impact_of_power_on_false_omission_rate(results, c(GSK_METHODS, "thick_t_test"))
 print(impact_power_on_for)
 
 
 ## (Normalized) impact of power on false discovery rate and false omission rate
-print(calculate_impact_of_power_on_false_discovery_and_omission_rate(results, c(GSK_METHODS, "bayesian_t_test")))
+print(calculate_impact_of_power_on_false_discovery_and_omission_rate(results, c(GSK_METHODS, "thick_t_test")))
 

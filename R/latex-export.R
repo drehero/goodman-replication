@@ -3,7 +3,7 @@ library(xtable)
 set.seed(1)
 source("R/results.R")
 
-methods=c(GSK_METHODS, "bayesian_t_test")
+methods=c(GSK_METHODS, "thick_t_test")
 
 errors = calculate_error_rates(results, methods)
 impact_power = calculate_impact_of_power(results, methods)
