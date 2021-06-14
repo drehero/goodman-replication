@@ -1,28 +1,25 @@
 # import methods needed for postprocessing and analysis
-source("R/analysis_tools.R")
+source("./analysis_tools.R")
 
 RERUN_SIMULATION = TRUE
 if (RERUN_SIMULATION) {
   # run the simulation to get new results (10,000 cases)
-  source("R/simulation.R")
+  source("./simulation.R")
 } else {
   # load the stored results of a big simulation with 100,000 cases
-  source('R/methods.R')
+  source('./methods.R')
   METHODS = c(GSK_METHODS ,"thick_t_test")
-  results = read.csv('R/results_100K.csv')
+  results = read.csv('./results_100K.csv')
 }
 
 # postprocessing: add additional columns needed for evaluation
-
 results$power = nominal_power(0.05, results$sigma, results$n, results$mpsd)
 results$relative_mpsd = results$mpsd / results$sigma
 
 
 # Replication of results from the paper
 
-## Figure 2
-
-## Table 1
+## GSK table 1
 # nr of simulated cases
 sum(results$power >= 0.8)
 sum(results$power >= 0.3 & results$power < 0.8)
@@ -40,57 +37,36 @@ for (method in METHODS) {
 }
 
 
-## Table 2
+## GSK table 2
 # proportions of implied inferences that were consistent with the fact for each 
 # combination of approach, power and fact
-
 table_2 = calculate_impact_of_power(results, GSK_METHODS)
 print(table_2)
-
 impact_of_power = calculate_impact_of_power(results, c(GSK_METHODS, "thick_t_test"))
 print(impact_of_power)
 
-## Figure 3
+
+## GSK figure 3
 plot_impact_of_power(results, methods=GSK_METHODS)
 plot_impact_of_power(results)
-plot_impact_of_power(results, c(GSK_METHODS, "thick_t_test"))
 
 
-## Table 3
-
+## GSK table 3
 table_3 = calculate_impact_of_MPSD(results, GSK_METHODS)
 print(table_3)
-impact_of_mpsd = calculate_impact_of_MPSD(results, c(GSK_METHODS, "thick_t_test"))
-print(impact_of_mpsd)
+impact_of_MPSD = calculate_impact_of_MPSD(results, c(GSK_METHODS, "thick_t_test"))
+print(impact_of_MPSD)
 
 
 # Other results:
 
-## Plot of Table 3
-plot_impact_of_MPSD(results, GSK_METHODS)
+## Plot of GSK table 3
 plot_impact_of_MPSD(results)
-plot_impact_of_MPSD(results, c(GSK_METHODS, "thick_t_test"))
-
 
 ## Error rates, accuracy and false discovery rate (Figure A7)
-print(calculate_error_rates(results, GSK_METHODS))
-print(calculate_error_rates(results))
-errors = calculate_error_rates(results, c(GSK_METHODS, "thick_t_test"))
-print(errors)
-
-
-## Impact of power on false discovery rate
-print(calculate_impact_of_power_on_false_discovery_rate(results))
-impact_power_on_fdr = calculate_impact_of_power_on_false_discovery_rate(results, c(GSK_METHODS, "thick_t_test"))
-print(impact_power_on_fdr)
-
-
-## Impact of power on false omission rate
-print(calculate_impact_of_power_on_false_omission_rate(results))
-impact_power_on_for = calculate_impact_of_power_on_false_omission_rate(results, c(GSK_METHODS, "thick_t_test"))
-print(impact_power_on_for)
-
+error_rates = calculate_error_rates(results)
+print(error_rates)
 
 ## (Normalized) impact of power on false discovery rate and false omission rate
-print(calculate_impact_of_power_on_false_discovery_and_omission_rate(results, c(GSK_METHODS, "thick_t_test")))
-
+impact_power_on_for_fdr = calculate_impact_of_power_on_false_discovery_and_omission_rate(results)
+print(impact_power_on_for_fdr)

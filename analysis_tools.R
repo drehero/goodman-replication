@@ -89,7 +89,6 @@ calculate_impact_of_MPSD = function(results, methods=METHODS) {
   return(impact)
 }
 
-
 plot_impact_of_power = function(results, methods=METHODS) {
   #' Function to plot the impact of power, method, and true location of the null
   #' on inference success (s. GSK Figure 3)
@@ -127,7 +126,6 @@ plot_impact_of_power = function(results, methods=METHODS) {
   mtext("Does the true location fall within the bounds of the 'thick null'?",
         side=3, outer=TRUE, cex=1, padj=1.5)
 }
-
 
 plot_impact_of_MPSD = function(results, methods=METHODS) {
   #' Function to plot the impact of relative MPSD, method, and true location 
@@ -170,7 +168,6 @@ plot_impact_of_MPSD = function(results, methods=METHODS) {
         side=3, outer=TRUE, cex=1, padj=1.5)
 }
 
-
 calculate_error_rates = function(results, methods=METHODS) {
   #' Function to calculte accuracy and error rates of methods (s. GSK Figure A7)
   #' 
@@ -184,44 +181,6 @@ calculate_error_rates = function(results, methods=METHODS) {
   errors$false_omission_rate = sapply(methods, function(method) sum(results$fact & !results[,method])/sum(!results[, method]))  # FOR = false negatives/(false negatives+true negatives)
   return(t(errors))
 }
-
-
-calculate_impact_of_power_on_false_discovery_rate = function(results, methods=METHODS) {
-  #' Function to calculate false discovery rates for each combination of approach and power
-  #' FDR = false positives / (false positives + true positives)
-  #' 
-  #' results: Dataframe of post processed simulation results
-  #' methods: Vector of method names, specifying the methods to calculate the impact for
-  power_bins = .bincode(results$power, breaks=c(0, 0.3, 0.8, 1), right=TRUE)
-  impact = data.frame()
-  for (power_bin in 3:1) {
-    res = results[(power_bins == power_bin), ]
-    cases = nrow(res)
-    proportions = sapply(methods, function(method) sum(res[, method] & !res$fact) / sum(res[, method]))
-    row = list(power=power_bin, cases=cases, percentage_thick_null_true=sum(!res$fact)/cases)
-    impact = rbind(impact, c(row, proportions))
-  }
-  return(impact)
-}
-
-calculate_impact_of_power_on_false_omission_rate = function(results, methods=METHODS) {
-  #' Function to calculate false omission rates for each combination of approach and power
-  #' FOR = false negatives / (false negatives + true negatives)
-  #' 
-  #' results: Dataframe of post processed simulation results
-  #' methods: Vector of method names, specifying the methods to calculate the impact for
-  power_bins = .bincode(results$power, breaks=c(0, 0.3, 0.8, 1), right=TRUE)
-  impact = data.frame()
-  for (power_bin in 3:1) {
-    res = results[(power_bins == power_bin), ]
-    cases = nrow(res)
-    proportions = sapply(methods, function(method) sum(!res[, method] & res$fact) / sum(!res[, method]))
-    row = list(power=power_bin, cases=cases, percentage_thick_null_true=sum(!res$fact)/cases)
-    impact = rbind(impact, c(row, proportions))
-  }
-  return(impact)
-}
-
 
 calculate_impact_of_power_on_false_discovery_and_omission_rate = function(results, methods=METHODS) {
   #' results: Dataframe of post processed simulation results
