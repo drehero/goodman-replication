@@ -1,4 +1,4 @@
-# A Proposed Hybrid Effect Size Plus $p$-Value: A Replication of Goodman et al. (2019)
+# A Proposed Hybrid Effect Size Plus p-Value: A Replication of Goodman et al. (2019)
 TODO add abstract
 
 TODO add url 
