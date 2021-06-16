@@ -1,4 +1,5 @@
-PALETTE = c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2",
+PALETTE = c("#02b0f3", "#bf8f00", "#702da0", "#fdc100", "#538136",
+            "#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2",
             "#D55E00", "#CC79A7", "#E31A1C", "#B15928", "#6A3D9A", "#FFFF99")
 
 nominal_power = function(alpha, sigma, n, mpsd) {
@@ -119,7 +120,8 @@ plot_impact_of_power = function(results, methods=METHODS) {
       axis(2)
       mtext("Proportion of inferences consistent with true parameter", side=2, outer=TRUE,
             las=3, padj=-3)
-      legend("bottomleft", inset=0.05, legend=names(legend_col), col=unlist(legend_col), pch=19)
+      legend("bottomleft", inset=0.05, legend=names(legend_col),
+             col=unlist(legend_col), pch=19, lty=1, lwd=3, bg=rgb(1, 1, 1, 1))
     }
   }
   mtext("Nominal Power", side=1, outer=TRUE, cex=1, padj=-1.5)
@@ -159,7 +161,7 @@ plot_impact_of_MPSD = function(results, methods=METHODS) {
       mtext("Proportion of inferences consistent with true parameter", side=2, outer=TRUE,
             cex=1, las=3, padj=-3)
       legend("bottomleft", inset=0.05, legend=names(legend_col), col=unlist(legend_col),
-             cex=1, pch=19)
+             cex=1, pch=19, lty=1, lwd=3, bg=rgb(1, 1, 1, 1))
     }
   }
   mtext("Decile for MPSD in population standard deviations", side=1, outer=TRUE,
