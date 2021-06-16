@@ -25,9 +25,9 @@ This will by default start a new simulation run and compute analyses of the simu
 your_method = function(x, mpsd, mu_0=100) {
     # compute something
     if (your_criterion) {
-        return(True)  # reject H0
+        return(TRUE)  # reject H0
     } else {
-        return(False)  # don't reject H0
+        return(FALSE)  # don't reject H0
     }
 }
 ```
