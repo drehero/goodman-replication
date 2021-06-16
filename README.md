@@ -23,14 +23,12 @@ This will by default start a new simulation run and compute analyses of the simu
 1. You can add your own method by implementing it as a function in the file `methods.R`. The function should take arguments `x`, `mpsd` and `mu_0` with default 100. The function should return `TRUE` if the method rejects H_0. For example:
 ```R
 your_method = function(x, mpsd, mu_0=100) {
-    if {
-        # method rejects H_0
-
-        ...
-
-        return(TRUE)
+    # compute something
+    if (your_criterion) {
+        return(True)  # reject H0
+    } else {
+        return(False)  # don't reject H0
     }
-    return(FALSE)
 }
 ```
 2. Add the name of your function as a string to the `METHODS` vector in the `methods.R` file. For example: 
