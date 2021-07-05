@@ -24,12 +24,6 @@ for (i in 1:nr_simulations) {
   mpsd  = sample( 2:20,  size=1)
   x = rnorm(n, mu, sigma)
   
-  # This is simply to avoid ties due to the limited number of values in 2:20 and 4:60
-  # when computing the relative mpsd deciles for table 3 (method calculate_impact_of_MPSD).
-  # It would not be necessary if we'd sample from runif(1, min=2, max=20) instead, but we
-  # wanted to match the original simulation settings as close as possible
-  mpsd  = mpsd + rnorm(1, 0, 1e-10)
-  
   # record case
   results[i,]$mu    = mu
   results[i,]$sigma = sigma

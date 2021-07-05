@@ -67,15 +67,13 @@ calculate_impact_of_MPSD = function(results, methods=METHODS) {
   #' 
   #' results: Dataframe of post processed simulation results
   #' methods: Vector of method names, specifying the methods to calculate the impact for
-  
+
   # fixed decile breaks from original GSK simulation
   #decile_breaks = c(0, 0.107, 0.167, 0.232, 0.290, 0.349, 0.421, 0.531, 0.750, 1.214, 5.000)
+  epsilon = rnorm(nrow(results), 0, 1e-10)   # add mini-noise to allow the division of the discrete data into deciles of equal size
+  decile_breaks = calculate_relativeMPSD_deciles(results$relative_mpsd + epsilon)
+  relative_mpsd_deciles = .bincode(results$relative_mpsd + epsilon, breaks=decile_breaks, right=TRUE, include.lowest=TRUE)
   
-  decile_breaks = calculate_relativeMPSD_deciles(results$relative_mpsd)
-  
-  relative_mpsd_deciles = .bincode(results$relative_mpsd, breaks=decile_breaks, right=TRUE, include.lowest=TRUE)
-  
-  # Decile breaks might need to be adjusted, if different setup values are used
   impact = data.frame()
   for (fact in c(FALSE, TRUE)) {
     for (relative_mpsd_decile in min(relative_mpsd_deciles):max(relative_mpsd_deciles)) {
