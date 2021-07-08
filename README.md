@@ -16,6 +16,8 @@ TODO add url / reference
 
 In order to obtain the results of our replication, including all tables and figures, run the file `results.R`.
 
+To replicate our results exactly use `set.seed(1)` and `nr_simulations = 100000` in the `simulation.R` script.
+
 ### Customization
 
 #### How to add your own method to the simulation:
