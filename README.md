@@ -2,7 +2,7 @@
 
 This repository contains the source code of our replication of Goodman et al. (2019). 
 
-TODO add url / reference
+The corresponding replication paper is available [here](https://arxiv.org/abs/2107.08860).
 
 ## Usage
 
