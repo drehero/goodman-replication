@@ -4,6 +4,7 @@
 GSK_METHODS = c("conventional", "small_alpha", "mesp", "distance_only", "interval_based")
 
 METHODS = c(GSK_METHODS, "thick_t_test")
+ALPHA_METHODS = c("conventional", "mesp", "interval_based", "thick_t_test")
 # get(METHODS[1])(x, MPSD) to use
 
 # Option to set how method names are displayed in plots
@@ -15,27 +16,31 @@ METHOD_NAMES = list(
   "interval_based"="Interval-based",
   "thick_t_test"="Thick t-test"
 )
+ALPHA_METHOD_NAMES = list(
+  "conventional"="Conventional",
+  "mesp"="MESP",
+  "interval_based"="Interval-based",
+  "thick_t_test"="Thick t-test"
+)
 
-conventional = function(x, mpsd=NULL, mu_0=100) {
-  #' Conventional: two tailed t-test with alpha=0.05
-  #' same as t.test(x, mu=mu_0, alternative="two.sided")$p.value < 0.05
+conventional = function(x, mpsd=NULL, mu_0=100, alpha=0.05) {
+  #' Conventional: two tailed t-test with alpha
+  #' same as t.test(x, mu=mu_0, alternative="two.sided")$p.value < alpha
   t = (mean(x) - mu_0) / sd(x) * sqrt(length(x))
   p = 2 * pt(abs(t), df=length(x)-1, lower.tail=FALSE)
-  return(p <= 0.05)
+  return(p <= alpha)
 }
 
 small_alpha = function(x, mpsd=NULL, mu_0=100) {
   #' Small alpha: two tailed t-test with alpha=0.005
   #' same as t.test(x, mu=mu_0, alternative="two.sided")$p.value < 0.005
-  t = (mean(x) - mu_0) / sd(x) * sqrt(length(x))
-  p = 2 * pt(abs(t), df=length(x)-1, lower.tail=FALSE)
-  return(p <= 0.005)
+  return(conventional(x, mpsd, mu_0, 0.005))
 }
 
-mesp = function(x, mpsd, mu_0=100) {
+mesp = function(x, mpsd, mu_0=100, alpha=0.05) {
   #' Minimum effect size plus p-value
   #' proposed by GSK
-  return(conventional(x, mpsd, mu_0) & distance_only(x, mpsd, mu_0))
+  return(conventional(x, mpsd, mu_0, alpha) & distance_only(x, mpsd, mu_0))
 }
 
 distance_only = function(x, mpsd, mu_0=100) {
@@ -43,7 +48,7 @@ distance_only = function(x, mpsd, mu_0=100) {
   return(abs(mean(x)-mu_0) >= mpsd)
 }
 
-interval_based = function(x, mpsd, mu_0=100) {
+interval_based = function(x, mpsd, mu_0=100, alpha=0.05) {
   #' reject if confidence interval and thick null don't overlap
   #' 
   #' important: We use the confidence interval that assumes the t statistic we 
@@ -53,13 +58,13 @@ interval_based = function(x, mpsd, mu_0=100) {
   #' -> For small n, our confidence interval will be bigger
   #' e.g. for minimal n = 5 our CI will be 2.77/1.96 = 1.41 times the size of GSK
   #' -> Our test is less likely to reject H0
-  return(abs(mean(x) - mu_0) > sd(x) / sqrt(length(x)) * qt(0.975, length(x)-1) + mpsd)
+  return(abs(mean(x) - mu_0) > sd(x) / sqrt(length(x)) * qt(1 - alpha/2, length(x)-1) + mpsd)
 }
 
 
 # Methods that are not in GSK:
 
-thick_t_test = function(x, mpsd, mu_0=100) {
+thick_t_test = function(x, mpsd, mu_0=100, alpha=0.05) {
   #' We calculate the expected point-p-value under the thick null hypothesis,
   #' where the point-p-value is the probability to get a more extreme result with respect 
   #' to mu_0 given that mu is really equal to some specific value mu* in [mu_0-mpsd,mu_0+mpsd]:
@@ -88,7 +93,7 @@ thick_t_test = function(x, mpsd, mu_0=100) {
   #' 
   #' p = sum_{mu* in [mu_0-mpsd,mu_0+mpsd]} P(|mean(X)-mu_0| > |mean(x)-mu_0| | mu=mu*) / (2mpsd+1)
   #' 
-  #' We reject H_0 if p < alpha = 0.05
+  #' We reject H_0 if p < alpha
   #' 
   #' Motivation:
   #' Alpha: If our assumption about the distribution of mu is correct, this test 
@@ -104,5 +109,12 @@ thick_t_test = function(x, mpsd, mu_0=100) {
   p = pt(t_right, df=length(x)-1, lower.tail=FALSE) + pt(t_left, df=length(x)-1, lower.tail=TRUE)
   p_exp = mean(p)
 
-  return(p_exp <= 0.05)
+  return(p_exp <= alpha)
 }
+
+
+# todo
+# thick_t_test_flat
+# thick_t_test_point
+# thick_t_test_normal
+
