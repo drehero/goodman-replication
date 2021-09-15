@@ -4,7 +4,7 @@
 GSK_METHODS = c("conventional", "small_alpha", "mesp", "distance_only", "interval_based")
 
 METHODS = c(GSK_METHODS, "thick_t_test")
-ALPHA_METHODS = c("conventional", "mesp", "interval_based", "thick_t_test")
+ALPHA_METHODS = c("conventional", "mesp", "interval_based") # todo add the continuous thick-t-tests
 # get(METHODS[1])(x, MPSD) to use
 
 # Option to set how method names are displayed in plots
@@ -96,13 +96,10 @@ thick_t_test = function(x, mpsd, mu_0=100, alpha=0.05) {
   #' We reject H_0 if p < alpha
   #' 
   #' Motivation:
-  #' Alpha: If our assumption about the distribution of mu is correct, this test 
-  #'        guarantees that the probability to make a type one error is exactly alpha
+  #' If our assumption about the distribution of mu is correct, this test 
+  #' guarantees that the probability to make a type one error is exactly alpha
   
   mu_point = (mu_0 - mpsd):(mu_0 + mpsd)
-  
-  # In the continuous case we would instead numerically approximate the integral:
-  #mu_point = seq(mu_0 - mpsd, mu_0 + mpsd, length.out=1000)
   
   t_right  = (mu_0 + abs(mean(x) - mu_0) - mu_point) / sd(x) * sqrt(length(x))
   t_left   = (mu_0 - abs(mean(x) - mu_0) - mu_point) / sd(x) * sqrt(length(x))

@@ -52,10 +52,6 @@ for (i in 1:nr_simulations) {
   # record facts
   results[i,]$fact = abs(mu - 100) > mpsd
   # and decisions
-  for (method in METHODS) {
-    results[i,method] = get(method)(x, mpsd)
-  }
-  
   # todo
   # for method in ALPHA_METHODS
   #   for alpha in 0.005, 0.01, 0.05, 0.10, 0.15, ..., 0.90, 0.95, 0.99, 0.995
