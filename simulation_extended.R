@@ -1,17 +1,23 @@
 # add methods to be tested and list of method names METHODS to the workspace
 source("./methods.R")
 
-nr_simulations = 10000
+nr_simulations = 1000
+mu_0 = 100
+alphas = c(0, 0.005, 0.01, seq(0.05, 0.95, by=0.05), 0.99, 0.995, 0.999, 1)
 
-result_cols = c(
-  "mu", "sigma", "n", "mpsd",  # case
+result_cols = unlist(c(
+  "mu", "sigma", "n", "mpsd",
   "fact",
-  METHODS
-  # todo for every alpha method and every alpha add row paste(method, alpha, sep='_')?
-)
+  sapply(METHODS, function(method) method@str),
+  sapply(METHODS, function(method){
+    if (method@uses_alpha) {
+      sapply(alphas, function(alpha) paste(method@str, alpha, sep="_"))  
+    }
+  })
+))
 
-results = data.frame(matrix(nrow=nr_simulations, ncol=length(result_cols), dimnames=list(c(), result_cols)))
-
+results = data.frame(matrix(nrow=nr_simulations, ncol=length(result_cols),
+                            dimnames=list(c(), result_cols)))
 
 r_point_unif = function(mpsd){
   # Under H1 this is the same as the original distribution
@@ -52,11 +58,14 @@ for (i in 1:nr_simulations) {
   # record facts
   results[i,]$fact = abs(mu - 100) > mpsd
   # and decisions
-  # todo
-  # for method in ALPHA_METHODS
-  #   for alpha in 0.005, 0.01, 0.05, 0.10, 0.15, ..., 0.90, 0.95, 0.99, 0.995
-  #     results[i,paste(method, alpha, sep='_')] = get(method)(x, mpsd, alpha=alpha)
-  
+  for (method in METHODS) {
+    results[i, method@str] = getDecision(method, x=x, mu_0=mu_0, mpsd=mpsd, alpha=0.05)
+    if (method@uses_alpha) {
+      for (alpha in alphas) {
+        results[i, paste(method@str, alpha, sep="_")] = getDecision(method, x, mu_0, mpsd, alpha)
+      }
+    }
+  }
 }
 
 # clear workspace

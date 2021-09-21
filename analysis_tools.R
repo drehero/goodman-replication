@@ -198,3 +198,29 @@ calculate_impact_of_power_on_false_discovery_and_omission_rate = function(result
   ), ret)
   return(ret)
 }
+
+plot_roc_curve = function(results, methods=METHODS) {
+  methods = unlist(sapply(methods, function(x) if(x@uses_alpha) x))
+  method_names = sapply(methods, function(x) x@str)
+  true_positive_rates = data.frame(matrix(nrow=length(alphas), ncol=length(method_names),
+                                          dimnames=list(c(), method_names)))
+  false_positive_rates = data.frame(matrix(nrow=length(alphas), ncol=length(method_names),
+                                           dimnames=list(c(), method_names)))
+  for (i in 1:length(alphas)) {
+    alpha = alphas[i]
+    col_names = sapply(method_names, function(x) paste(x, alpha, sep="_"))
+    res = data.frame(results[, "fact"], results[, col_names])
+    colnames(res) = c("fact", method_names)
+    error_rates = calculate_error_rates(res, methods)
+    true_positive_rates[i, method_names] = 1-error_rates["false_negative_rate", ]
+    false_positive_rates[i, method_names] = error_rates["false_positive_rate", ]
+  }
+  dev.off()
+  plot(c(0, 1), c(0, 1), type="l", main="ROC Curve", xlab="FPR", ylab="TPR", lty=2, lwd=2)
+  for (method in methods) {
+    lines(false_positive_rates[, method@str], true_positive_rates[, method@str],
+          col=method@color, lwd=3)
+  }
+  legend("bottomright", inset=0.05, legend=sapply(methods, function(x) x@name),
+         col=sapply(methods, function(x) x@color), cex=1, lwd=3)
+}
