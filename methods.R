@@ -1,29 +1,70 @@
-# Methods to be tested in the simulation
+library(methods)
 
-# Methods in GSK
-GSK_METHODS = c("conventional", "small_alpha", "mesp", "distance_only", "interval_based")
 
-METHODS = c(GSK_METHODS, "thick_t_test")
-ALPHA_METHODS = c("conventional", "mesp", "interval_based") # todo add the continuous thick-t-tests
-# get(METHODS[1])(x, MPSD) to use
-
-# Option to set how method names are displayed in plots
-METHOD_NAMES = list(
-  "conventional"="Conventional",
-  "small_alpha"="Small-alpha",
-  "mesp"="MESP",
-  "distance_only"="Distance-only",
-  "interval_based"="Interval-based",
-  "thick_t_test"="Thick t-test"
-)
-ALPHA_METHOD_NAMES = list(
-  "conventional"="Conventional",
-  "mesp"="MESP",
-  "interval_based"="Interval-based",
-  "thick_t_test"="Thick t-test"
+setClass(
+  "Method",
+  slots=c(
+    name="character",
+    str="character",
+    color="character",
+    decision_function="ANY",
+    uses_mpsd="logical",
+    uses_alpha="logical"
+  ),
+  prototype=list(
+    name=NA_character_,
+    str=NA_character_,
+    color=NA_character_,
+    decision_function=function(){return(NA)},
+    uses_mpsd=NA,
+    uses_alpha=NA
+  )
 )
 
-conventional = function(x, mpsd=NULL, mu_0=100, alpha=0.05) {
+setGeneric(
+  "getDecision",
+  function(method, x, mu_0, mpsd=NULL, alpha=NULL, ...) {
+    standardGeneric("getDecision")
+  }
+)
+
+setMethod(
+  "getDecision",
+  "Method",
+  function(method, x, mu_0, mpsd=NULL, alpha=0.05, ...){
+    if (method@uses_mpsd & method@uses_alpha) {
+      return(method@decision_function(x=x, mu_0=mu_0, mpsd=mpsd, alpha=alpha, ...))
+    } else if (method@uses_mpsd) {
+      return(method@decision_function(x=x, mu_0=mu_0, mpsd=mpsd, ...))
+    } else if (method@uses_alpha) {
+      return(method@decision_function(x=x, mu_0=mu_0, alpha=alpha, ...))
+    } else {
+      return(method@decision_function(x=x, mu_0=mu_0, ...))
+    }
+  }
+)
+
+
+Method = function(name, decision_function, color="#000000"){
+  decision_function_args = formalArgs(decision_function) 
+  
+  methods::new(
+    "Method",
+    name=name,
+    str=gsub("\\W", "_", tolower(name)),
+    color=color,
+    decision_function=decision_function,
+    uses_mpsd = "mpsd" %in% decision_function_args,
+    uses_alpha = "alpha" %in% decision_function_args
+  )
+}
+
+
+# Implement the decision functions of the different methods.
+# If a method uses mpsd or alpha in order to make a decision on whether to reject
+# the (thick) H_0 make sure to pass "mpsd" or "alpha" as parameter to the
+# decision function
+conventional_decision_function = function(x, mu_0, alpha=0.05) {
   #' Conventional: two tailed t-test with alpha
   #' same as t.test(x, mu=mu_0, alternative="two.sided")$p.value < alpha
   t = (mean(x) - mu_0) / sd(x) * sqrt(length(x))
@@ -31,24 +72,25 @@ conventional = function(x, mpsd=NULL, mu_0=100, alpha=0.05) {
   return(p <= alpha)
 }
 
-small_alpha = function(x, mpsd=NULL, mu_0=100) {
+small_alpha_decision_function = function(x, mu_0) {
   #' Small alpha: two tailed t-test with alpha=0.005
   #' same as t.test(x, mu=mu_0, alternative="two.sided")$p.value < 0.005
-  return(conventional(x, mpsd, mu_0, 0.005))
+  return(conventional_decision_function(x, mu_0, alpha=0.005))
 }
 
-mesp = function(x, mpsd, mu_0=100, alpha=0.05) {
+mesp_decision_function = function(x, mpsd, mu_0, alpha=0.05) {
   #' Minimum effect size plus p-value
   #' proposed by GSK
-  return(conventional(x, mpsd, mu_0, alpha) & distance_only(x, mpsd, mu_0))
+  return(conventional_decision_function(x, mu_0, alpha) &
+           distance_only_decision_function(x, mpsd, mu_0))
 }
 
-distance_only = function(x, mpsd, mu_0=100) {
+distance_only_decision_function = function(x, mpsd, mu_0) {
   #' reject if empirical mean is in the thick null
   return(abs(mean(x)-mu_0) >= mpsd)
 }
 
-interval_based = function(x, mpsd, mu_0=100, alpha=0.05) {
+interval_based_decision_function = function(x, mpsd, mu_0, alpha=0.05) {
   #' reject if confidence interval and thick null don't overlap
   #' 
   #' important: We use the confidence interval that assumes the t statistic we 
@@ -64,7 +106,7 @@ interval_based = function(x, mpsd, mu_0=100, alpha=0.05) {
 
 # Methods that are not in GSK:
 
-thick_t_test = function(x, mpsd, mu_0=100, alpha=0.05) {
+thick_t_test_decision_function = function(x, mpsd, mu_0, alpha=0.05) {
   #' We calculate the expected point-p-value under the thick null hypothesis,
   #' where the point-p-value is the probability to get a more extreme result with respect 
   #' to mu_0 given that mu is really equal to some specific value mu* in [mu_0-mpsd,mu_0+mpsd]:
@@ -114,4 +156,17 @@ thick_t_test = function(x, mpsd, mu_0=100, alpha=0.05) {
 # thick_t_test_flat
 # thick_t_test_point
 # thick_t_test_normal
+
+
+conventional = Method("Conventional", conventional_decision_function, "#02b0f3")
+small_alpha = Method("Small-alpha", small_alpha_decision_function, "#bf8f00")
+mesp = Method("MESP", mesp_decision_function, "#702da0")
+distance_only = Method("Distance-only", distance_only_decision_function, "#fdc100")
+interval_based = Method("Interval-based", interval_based_decision_function, "#538136")
+thick_t_test = Method("Thick t-test", thick_t_test_decision_function, "#999999")
+
+
+# Methods in GSK
+GSK_METHODS = c(conventional, small_alpha, mesp, distance_only, interval_based)
+METHODS = c(GSK_METHODS, thick_t_test)
 

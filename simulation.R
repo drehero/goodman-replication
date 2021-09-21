@@ -2,14 +2,16 @@
 source("./methods.R")
 
 nr_simulations = 10000
+mu_0 = 100
 
 result_cols = c(
-  "mu", "sigma", "n", "mpsd",  # case
+  "mu", "sigma", "n", "mpsd",
   "fact",
-  METHODS
+  sapply(METHODS, function(x) x@str)
 )
 
-results = data.frame(matrix(nrow=nr_simulations, ncol=length(result_cols), dimnames=list(c(), result_cols)))
+results = data.frame(matrix(nrow=nr_simulations, ncol=length(result_cols),
+                            dimnames=list(c(), result_cols)))
 
 #set.seed(1)
 for (i in 1:nr_simulations) {
@@ -34,7 +36,7 @@ for (i in 1:nr_simulations) {
   results[i,]$fact = abs(mu - 100) > mpsd
   # and decisions
   for (method in METHODS) {
-    results[i,method] = get(method)(x, mpsd)
+    results[i, method@str] = getDecision(method, x=x, mu_0=mu_0, mpsd=mpsd)
   }
 }
 

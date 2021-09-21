@@ -22,9 +22,11 @@ To replicate our results exactly use `set.seed(1)` and `nr_simulations = 100000`
 
 #### How to add your own method to the simulation:
 
-1. You can add your own method by implementing it as a function in the file `methods.R`. The function should take arguments `x`, `mpsd` and `mu_0` with default 100. The function should return `TRUE` if the method rejects H_0. For example:
+Methods are instances of a custom S4 class called `Method`. You can add your own method by creating an instance of this class in the `methods.R` file:
+
+1. Implement a decision function for your method. The function should take at least a sample `x` and `mu_0` as arguments and should return `TRUE` if the method rejects H_0. If your method uses an mpsd value or the significance level alpha in order to make a decision you should also pass them as an argument to the function. For example:
 ```R
-your_method = function(x, mpsd, mu_0=100) {
+your_methods_decision_function = function(x, mu_0, mpsd, alpha=0.05, ...) {
     # compute something
     if (your_criterion) {
         return(TRUE)  # reject H0
@@ -33,14 +35,28 @@ your_method = function(x, mpsd, mu_0=100) {
     }
 }
 ```
-2. Add the name of your function as a string to the `METHODS` vector in the `methods.R` file. For example: 
+2. Create an instance for your custom method by passing the decision function as well as a the name of the method to the `Method()` constructor function. For example:
 ```R
-METHODS = c(GSK_METHODS, "thick_t_test", "your_method")
+your_method = Method(
+    name="My method",
+    decision_function=your_methods_decision_function,
+    color="#000000"
+)
 ```
-3. Execute the `results.R` file to run the simulation and get an analysis of the methods.
-The functions used to summarize the simulation results are defined in `analysis_tools.R`. The functions take as arguments the simulation results and a vector containing the method names which should be considered. For example:
+You also have the option to pass an hexcode to the constructor. This defines the color in which results of your method will show up in plots.
+In order to see whether your method would reject H_0 in a given scenario, you can use the function `getDecision`. For example:
 ```R
-plot_impact_of_MPSD(results, methods=c("conventional", "mesp", "your_method"))
+getDecision(method=your_method, x=x, mu_0=100, ...)
+```
+`getDecision` can take besides `method`, `x` and `mu_0` other args which might be needed for your method to make a decision about H_0 (for example an mpsd value).
+3. Add the method to the `METHODS` vector. For example: 
+```R
+METHODS = c(GSK_METHODS, thick_t_test, your_method)
+```
+4. Execute the `results.R` file to run the simulation and get an analysis of the methods.
+The functions used to summarize the simulation results are defined in `analysis_tools.R`. The functions take as arguments the simulation results and a vector containing the methods which should be considered. For example:
+```R
+plot_impact_of_MPSD(results, methods=c(conventional, mesp, your_method))
 ```
 
 #### How to make changes to the simulation setup:

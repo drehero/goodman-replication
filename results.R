@@ -1,14 +1,13 @@
 # import methods needed for postprocessing and analysis
 source("./analysis_tools.R")
 
-RERUN_SIMULATION = TRUE
+RERUN_SIMULATION = TRUE 
 if (RERUN_SIMULATION) {
   # run the simulation to get new results (10,000 cases)
   source("./simulation.R")
 } else {
   # load the stored results of a big simulation with 100,000 cases
   source('./methods.R')
-  METHODS = c(GSK_METHODS ,"thick_t_test")
   results = read.csv('./results_100K.csv')
 }
 
@@ -27,7 +26,7 @@ sum(results$power < 0.3)
 
 # proportions of implied inferences that were consistent with the fact for each 
 # combination of approach and power
-for (method in METHODS) {
+for (method in sapply(METHODS, function(x) x@str)) {
   message(method)
   message(sum(results$fact == results[,method]))
   message(sum(results$power >= 0.8 & results$fact == results[,method]) / sum(results$power >= 0.8))
@@ -42,7 +41,7 @@ for (method in METHODS) {
 # combination of approach, power and fact
 table_2 = calculate_impact_of_power(results, GSK_METHODS)
 print(table_2)
-impact_of_power = calculate_impact_of_power(results, c(GSK_METHODS, "thick_t_test"))
+impact_of_power = calculate_impact_of_power(results, METHODS)
 print(impact_of_power)
 
 
@@ -54,7 +53,7 @@ plot_impact_of_power(results)
 ## GSK table 3
 table_3 = calculate_impact_of_MPSD(results, GSK_METHODS)
 print(table_3)
-impact_of_MPSD = calculate_impact_of_MPSD(results, c(GSK_METHODS, "thick_t_test"))
+impact_of_MPSD = calculate_impact_of_MPSD(results)
 print(impact_of_MPSD)
 
 
@@ -70,3 +69,4 @@ print(error_rates)
 ## (Normalized) impact of power on false discovery rate and false omission rate
 impact_power_on_for_fdr = calculate_impact_of_power_on_false_discovery_and_omission_rate(results)
 print(impact_power_on_for_fdr)
+
