@@ -1,4 +1,8 @@
 source("./simulation_extended.R")
-
 source("./analysis_tools.R")
-plot_roc_curve(results)
+
+calculate_error_rates(results_flat)
+calculate_error_rates(results_norm)
+calculate_error_rates(results_point)
+
+plot_roc_curve(results_alphas)

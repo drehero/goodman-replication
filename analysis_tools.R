@@ -215,6 +215,7 @@ plot_roc_curve = function(results, methods=METHODS) {
     true_positive_rates[i, method_names] = 1-error_rates["false_negative_rate", ]
     false_positive_rates[i, method_names] = error_rates["false_positive_rate", ]
   }
+  par()
   dev.off()
   plot(c(0, 1), c(0, 1), type="l", main="ROC Curve", xlab="FPR", ylab="TPR", lty=2, lwd=2)
   for (method in methods) {
