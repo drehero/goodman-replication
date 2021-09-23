@@ -25,7 +25,7 @@ n = sample(5:100, size=nr_simulations, replace=TRUE)
 mpsd = runif(nr_simulations, 2, 20)
 
 mu_flat = runif(nr_simulations, 75, 125)  # continuous version of the original distribution
-mu_norm = mu_0 + rnorm(nr_simulations, 0, 50/sqrt(12))  # normal distribution with the same variance
+mu_norm = rnorm(nr_simulations, mu_0, 50/sqrt(12))  # normal distribution with the same variance
 mu_point = sapply(mpsd, function(x) r_point_unif(x))  # like the original distribution but under H0 effects are always exactly zero
 
 results_flat = data.frame(sigma, n, mpsd, mu=mu_flat)
