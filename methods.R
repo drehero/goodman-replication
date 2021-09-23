@@ -151,11 +151,40 @@ thick_t_test_decision_function = function(x, mpsd, mu_0, alpha=0.05) {
   return(p_exp <= alpha)
 }
 
+thick_t_test_flat_decision_function = function(x, mpsd, mu_0, alpha=0.05) {
+  #' continuous version of thick_t_test_decision_function
+  
+  integrand = function (mu_point, n, s, m, mpsd) {
+    t_right  = (mu_0 + abs(m - mu_0) - mu_point) / s * sqrt(n)
+    t_left   = (mu_0 - abs(m - mu_0) - mu_point) / s * sqrt(n)
+    p = pt(t_right, df=n-1, lower.tail=FALSE) + pt(t_left, df=n-1, lower.tail=TRUE)
+    f0 = 1 / (2*mpsd)
+    return(p * f0)
+  }
+  
+  p_exp = integrate(integrand, mu_0-mpsd, mu_0+mpsd, n=length(x), s=sd(x), m=mean(x),mpsd=mpsd, abs.tol=0.001)$value
+  
+  return(p_exp <= alpha)
+}
 
-# todo
-# thick_t_test_flat
-# thick_t_test_point
-# thick_t_test_normal
+thick_t_test_normal_decision_function = function(x, mpsd, mu_0, alpha=0.05) {
+  #' Assumed distribution under H0 ist dnorm(mu_0, 50/sqrt(12)) truncated at the edges of the H0 interval
+  #' For this big variance the normal distribution is so flat in the mpsd interval that we se no meaningfull difference
+  #' to the flat thick t-test in the ROC curve. If we choose a smaller variance (e.g. sd=50/sqrt(12)/4) we can
+  #' see that the ROC curve approaches that of the conventional t-test
+  
+  integrand = function (mu_point, n, s, m, mpsd) {
+    t_right  = (mu_0 + abs(m - mu_0) - mu_point) / s * sqrt(n)
+    t_left   = (mu_0 - abs(m - mu_0) - mu_point) / s * sqrt(n)
+    p = pt(t_right, df=n-1, lower.tail=FALSE) + pt(t_left, df=n-1, lower.tail=TRUE)
+    f0 = dnorm(mu_point, mu_0, 50/sqrt(12)) + pnorm(mu_0 - mpsd, mu_0, 50 / sqrt(12)) / mpsd  # density of the truncated normal dist.
+    return(p * f0)
+  }
+  
+  p_exp = integrate(integrand, mu_0-mpsd, mu_0+mpsd, n=length(x), s=sd(x), m=mean(x), mpsd=mpsd, abs.tol=0.001)$value
+  
+  return(p_exp <= alpha)
+}
 
 
 conventional = Method("Conventional", conventional_decision_function, "#02b0f3")
@@ -164,9 +193,11 @@ mesp = Method("MESP", mesp_decision_function, "#702da0")
 distance_only = Method("Distance-only", distance_only_decision_function, "#fdc100")
 interval_based = Method("Interval-based", interval_based_decision_function, "#538136")
 thick_t_test = Method("Thick t-test", thick_t_test_decision_function, "#999999")
+thick_t_test_flat = Method("Thick t-test flat", thick_t_test_flat_decision_function, "#777777")
+thick_t_test_normal = Method("Thick t-test normal", thick_t_test_normal_decision_function, "#444444")
 
 
 # Methods in GSK
 GSK_METHODS = c(conventional, small_alpha, mesp, distance_only, interval_based)
-METHODS = c(GSK_METHODS, thick_t_test)
+METHODS = c(GSK_METHODS, thick_t_test, thick_t_test_flat, thick_t_test_normal)
 
