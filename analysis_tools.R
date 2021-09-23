@@ -162,7 +162,7 @@ calculate_error_rates = function(results, methods=METHODS) {
   #' methods: Vector containing instances of class "Method", specifying the
   #' methods to calculate the error rates for
   method_names = sapply(methods, function(x) x@str)
-  errors = data.frame(method=method_names, row.names="method")
+  errors = data.frame(row.names=method_names)
   errors$accuracy = sapply(method_names, function(method) sum(results$fact == results[,method])/nrow(results))
   errors$false_positive_rate = sapply(method_names, function(method) sum(!results$fact & results[,method])/sum(!results$fact))  # aka type I error alpha
   errors$false_negative_rate = sapply(method_names, function(method) sum(results$fact & !results[,method])/sum(results$fact))  # aka 1 - power
@@ -199,7 +199,7 @@ calculate_impact_of_power_on_false_discovery_and_omission_rate = function(result
   return(ret)
 }
 
-plot_roc_curve = function(results, methods=METHODS) {
+plot_roc_curve = function(results, methods=METHODS, detailed=FALSE) {
   methods = unlist(sapply(methods, function(x) if(x@uses_alpha) x))
   method_names = sapply(methods, function(x) x@str)
   true_positive_rates = data.frame(matrix(nrow=length(alphas), ncol=length(method_names),
@@ -215,12 +215,23 @@ plot_roc_curve = function(results, methods=METHODS) {
     true_positive_rates[i, method_names] = 1-error_rates["false_negative_rate", ]
     false_positive_rates[i, method_names] = error_rates["false_positive_rate", ]
   }
-  par()
-  dev.off()
+  par(mar=c(5.1, 4.1, 4.1, 2.1), mfrow=c(1, 1), oma=c(0, 0, 0, 0), xpd=FALSE, cex=1)
   plot(c(0, 1), c(0, 1), type="l", main="ROC Curve", xlab="FPR", ylab="TPR", lty=2, lwd=2)
-  for (method in methods) {
+  for (i in 1:length(methods)) {
+    method = methods[[i]]
+    if (detailed) {
+      col = paste(method@color, "4f", sep="")  # add low alpha channel to color
+    } else {
+      col = method@color
+    }
     lines(false_positive_rates[, method@str], true_positive_rates[, method@str],
-          col=method@color, lwd=3)
+          col=col, lwd=3)
+    if (detailed) {
+      points(false_positive_rates[, method@str], true_positive_rates[, method@str],
+             col=method@color, pch=i)
+      text(false_positive_rates[, method@str], true_positive_rates[, method@str],
+           labels=as.character(alphas), col=method@color, cex=0.5, pos=2)
+    }
   }
   legend("bottomright", inset=0.05, legend=sapply(methods, function(x) x@name),
          col=sapply(methods, function(x) x@color), cex=1, lwd=3)
