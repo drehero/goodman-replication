@@ -236,3 +236,36 @@ plot_roc_curve = function(results, methods=METHODS, detailed=FALSE) {
   legend("bottomright", inset=0.05, legend=sapply(methods, function(x) x@name),
          col=sapply(methods, function(x) x@color), cex=1, lwd=3)
 }
+
+plot_alpha_curve = function(results, methods=METHODS, detailed=FALSE) {
+  methods = unlist(sapply(methods, function(x) if(x@uses_alpha) x))
+  method_names = sapply(methods, function(x) x@str)
+  false_positive_rates = data.frame(matrix(nrow=length(alphas), ncol=length(method_names),
+                                           dimnames=list(c(), method_names)))
+  for (i in 1:length(alphas)) {
+    alpha = alphas[i]
+    col_names = sapply(method_names, function(x) paste(x, alpha, sep="_"))
+    res = data.frame(results[, "fact"], results[, col_names])
+    colnames(res) = c("fact", method_names)
+    error_rates = calculate_error_rates(res, methods)
+    false_positive_rates[i, method_names] = error_rates["false_positive_rate", ]
+  }
+  par(mar=c(5.1, 4.1, 4.1, 2.1), mfrow=c(1, 1), oma=c(0, 0, 0, 0), xpd=FALSE, cex=1)
+  plot(c(0, 1), c(0, 1), type="l", main="Alpha Curve", xlab="Alpha", ylab="FPR", lty=2, lwd=2)
+  for (i in 1:length(methods)) {
+    method = methods[[i]]
+    if (detailed) {
+      col = paste(method@color, "4f", sep="")  # add low alpha channel to color
+    } else {
+      col = method@color
+    }
+    lines(alphas, false_positive_rates[, method@str],
+          col=col, lwd=3)
+    if (detailed) {
+      points(alphas, false_positive_rates[, method@str],
+             col=method@color, pch=i)
+    }
+  }
+  legend("topleft", inset=0.05, legend=sapply(methods, function(x) x@name),
+         col=sapply(methods, function(x) x@color), cex=1, lwd=3)
+}
