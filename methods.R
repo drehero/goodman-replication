@@ -177,8 +177,9 @@ thick_t_test_normal_decision_function = function(x, mpsd, mu_0, alpha=0.05) {
     t_right  = (mu_0 + abs(m - mu_0) - mu_point) / s * sqrt(n)
     t_left   = (mu_0 - abs(m - mu_0) - mu_point) / s * sqrt(n)
     p = pt(t_right, df=n-1, lower.tail=FALSE) + pt(t_left, df=n-1, lower.tail=TRUE)
-    f0 = dnorm(mu_point, mu_0, 50/sqrt(12)) + pnorm(mu_0 - mpsd, mu_0, 50 / sqrt(12)) / mpsd  # density of the truncated normal dist.
+    f0 = dnorm(mu_point, mu_0, 50/sqrt(12)) + pnorm(mu_0 - mpsd, mu_0, 50 / sqrt(12)) / mpsd  # density of the truncated normal dist. 
     return(p * f0)
+    # TODO muss multiplikativ sein
   }
   
   p_exp = integrate(integrand, mu_0-mpsd, mu_0+mpsd, n=length(x), s=sd(x), m=mean(x), mpsd=mpsd, abs.tol=0.001)$value
