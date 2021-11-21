@@ -180,6 +180,8 @@ calculate_impact_of_power_on_false_discovery_and_omission_rate = function(result
   cols = ncol(impact)
   method_names = sapply(methods, function(x) x@str)
   
+  # this is the normalized FDR, i.e. the FDR when we weight cases where H0 is true by the inverse ratio of cases where H0 is true
+  # and cases where H0 is true by the inverse ratio of cases where H0 is true, same for the FOR below
   fpr = 1 - impact[1:(rows/2), 4:cols]
   tpr = impact[(rows/2 + 1):rows, 4:cols]
   FDR = data.frame(fpr / (fpr + tpr))
