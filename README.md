@@ -11,6 +11,8 @@ The corresponding replication paper is available [here](https://arxiv.org/abs/21
 * `analysis_tools.R` defines functions to summarize the simulation results
 * `results.R` summarizes the simulation results
 * `results_100K.csv` contains the results of 100,000 simulation runs
+* `extended/` contains the source code of an extended simulation described in the supplementary materials
+* `meta/` contains the source code and data of figure 1
 
 ### Replication
 
@@ -24,7 +26,7 @@ To replicate our results exactly use `set.seed(1)` and `nr_simulations = 100000`
 
 Methods are instances of a custom S4 class called `Method`. You can add your own method by creating an instance of this class in the `methods.R` file:
 
-1. Implement a decision function for your method. The function should take at least a sample `x` and `mu_0` as arguments and should return `TRUE` if the method rejects H_0. If your method uses an mpsd value or the significance level alpha in order to make a decision you should also pass them as an argument to the function. For example:
+1. Implement a decision function for your method. The function should take at least a sample `x` and `mu_0` as arguments and should return `TRUE` if the method rejects H_0. If your method uses an MPSD value or the significance level alpha in order to make a decision you should also pass them as an argument to the function. For example:
 ```R
 your_methods_decision_function = function(x, mu_0, mpsd, alpha=0.05, ...) {
     # compute something
@@ -35,7 +37,7 @@ your_methods_decision_function = function(x, mu_0, mpsd, alpha=0.05, ...) {
     }
 }
 ```
-2. Create an instance for your custom method by passing the decision function as well as a the name of the method to the `Method()` constructor function. For example:
+2. Create an instance for your custom method by passing the decision function as well as a the name of the method to the `Method()` constructor function:
 ```R
 your_method = Method(
     name="My method",
@@ -43,18 +45,19 @@ your_method = Method(
     color="#000000"
 )
 ```
-You also have the option to pass an hexcode to the constructor. This defines the color in which results of your method will show up in plots.
-In order to see whether your method would reject H_0 in a given scenario, you can use the function `getDecision`. For example:
+You also have the option to pass a color code to the constructor. This defines the color in which results of your method will show up in plots.
+In order to see whether your method would reject H_0 in a given scenario, you can use the function `getDecision`:
 ```R
 getDecision(method=your_method, x=x, mu_0=100, ...)
 ```
-`getDecision` can take besides `method`, `x` and `mu_0` other args which might be needed for your method to make a decision about H_0 (for example an mpsd value).
-3. Add the method to the `METHODS` vector. For example: 
+`getDecision` accepts besides `method`, `x` and `mu_0` other arguments which might be needed for your method to make a decision about H_0 (for example an MPSD value).
+
+3. Add the method to the `METHODS` vector: 
 ```R
 METHODS = c(GSK_METHODS, thick_t_test, your_method)
 ```
 4. Execute the `results.R` file to run the simulation and get an analysis of the methods.
-The functions used to summarize the simulation results are defined in `analysis_tools.R`. The functions take as arguments the simulation results and a vector containing the methods which should be considered. For example:
+The functions used to summarize the simulation results are defined in `analysis_tools.R`. The functions take as arguments the postprocessed simulation results and a vector containing the methods which should be considered:
 ```R
 plot_impact_of_MPSD(results, methods=c(conventional, mesp, your_method))
 ```
@@ -73,6 +76,4 @@ x = rnorm(n, mu, sigma)
 
 ## Dependencies
 
-All code is written in base R.
-No additional dependencies needed.
-
+[tidyverse](https://www.tidyverse.org/) and [truncnorm](https://cran.r-project.org/web/packages/truncnorm/index.html)
