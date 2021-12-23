@@ -11,8 +11,9 @@
 # User-specific files
 .Ruserdata
 
-# some folders that are not interesting for everybody
+# some files and folders that are not interesting for everybody
 /original paper
+meta.out.psy.txt
 
 # Output files from R CMD build
 /*.tar.gz

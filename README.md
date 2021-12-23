@@ -12,7 +12,7 @@ The corresponding replication paper is available [here](https://arxiv.org/abs/21
 * `results.R` summarizes the simulation results
 * `results_100K.csv` contains the results of 100,000 simulation runs
 * `extended/` contains the source code of an extended simulation described in the supplementary materials
-* `meta/` contains the source code and data of figure 1
+* `meta/` contains the source code of figure 1 (data available at https://osf.io/dc9e8/) 
 
 ### Replication
 
