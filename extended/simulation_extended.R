@@ -1,5 +1,5 @@
 # add methods to be tested and list of method names METHODS to the workspace
-source("../methods.R")
+source("methods.R")
 
 nr_simulations = 10000
 mu_0 = 100
@@ -114,3 +114,4 @@ for (i in 1:nr_simulations) {
 
 # clear workspace
 rm(i, method, mpsd, mu, n, result_cols, sigma, x)
+

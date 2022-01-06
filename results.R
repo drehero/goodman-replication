@@ -1,14 +1,14 @@
 # import methods needed for postprocessing and analysis
-source("./analysis_tools.R")
+source("analysis_tools.R")
 
 RERUN_SIMULATION = TRUE 
 if (RERUN_SIMULATION) {
   # run the simulation to get new results (10,000 cases)
-  source("./simulation.R")
+  source("simulation.R")
 } else {
   # load the stored results of a big simulation with 100,000 cases
-  source('./methods.R')
-  results = read.csv('./results_100K.csv')
+  source('methods.R')
+  results = read.csv('results_100K.csv')
 }
 
 # postprocessing: add additional columns needed for evaluation
