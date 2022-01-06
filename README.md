@@ -1,4 +1,4 @@
-# A Proposed Hybrid Effect Size Plus p-Value: A Replication of Goodman et al. (2019)
+# A Proposed Hybrid Effect Size Plus p-Value: A Comment on Goodman et al. (2019)
 
 This repository contains the source code of our replication of Goodman et al. (2019). 
 
