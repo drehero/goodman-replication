@@ -1,7 +1,7 @@
 library(tidyverse)
 library(truncnorm)
 
-# load dataset from Aert et al. (2019), available on https://osf.io/fy6xt/
+# load dataset from Aert et al. (2019), available at https://osf.io/fy6xt/
 source("meta.out.psy.txt", encoding="ISO-8859-1")
 
 # extract only small meta-analytic effect estimates for Cohen's d (calculated based on
@@ -26,6 +26,6 @@ res_small %>%
   scale_x_continuous(limits = c(-.2, .2)) +
   theme_classic() +
   theme(
-    panel.grid.major.y = element_line(size=0.1, color="black"),
+    panel.grid.major.y = element_line(size=0.3, color="gray"),
     panel.border = element_rect(color="black", fill=NA, size=1.5)
-  ) 
+  )
