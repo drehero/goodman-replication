@@ -59,7 +59,7 @@ for (method in METHODS) {
 
 
 ### Use different alphas
-nr_simulations = 1000
+nr_simulations = 10000
 alphas = c(0, 0.0001, 0.0005, 0.001, 0.005, 0.01, seq(0.05, 0.95, by=0.05), 0.99, 0.995, 0.999, 1)
 
 result_cols = c(

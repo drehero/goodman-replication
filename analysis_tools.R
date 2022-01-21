@@ -239,10 +239,10 @@ plot_roc_curve = function(results, methods=METHODS, detailed=FALSE) {
          col=sapply(methods, function(x) x@color), cex=1, lwd=3)
 }
 
-plot_alpha_curve = function(results, methods=METHODS, detailed=FALSE) {
+plot_alpha_curve = function(results, methods=METHODS, rate='FPR', detailed=FALSE, print_legend=TRUE) {
   methods = unlist(sapply(methods, function(x) if(x@uses_alpha) x))
   method_names = sapply(methods, function(x) x@str)
-  false_positive_rates = data.frame(matrix(nrow=length(alphas), ncol=length(method_names),
+  rates = data.frame(matrix(nrow=length(alphas), ncol=length(method_names),
                                            dimnames=list(c(), method_names)))
   for (i in 1:length(alphas)) {
     alpha = alphas[i]
@@ -250,10 +250,15 @@ plot_alpha_curve = function(results, methods=METHODS, detailed=FALSE) {
     res = data.frame(results[, "fact"], results[, col_names])
     colnames(res) = c("fact", method_names)
     error_rates = calculate_error_rates(res, methods)
-    false_positive_rates[i, method_names] = error_rates["false_positive_rate", ]
+    if (rate == "FPR") {
+      rates[i, method_names] = error_rates["false_positive_rate", ]
+    } else {
+      rates[i, method_names] = 1- error_rates["false_negative_rate", ]
+    }
   }
-  par(mar=c(5.1, 4.1, 4.1, 2.1), mfrow=c(1, 1), oma=c(0, 0, 0, 0), xpd=FALSE, cex=1)
-  plot(c(0, 1), c(0, 1), type="l", main="Alpha Curve", xlab="Alpha", ylab="FPR", lty=2, lwd=2)
+  par(mar=c(5.1, 4.1, 4.1, 2.1), mfrow=c(1, 1), oma=c(0, 0, 0, 0), xpd=FALSE)
+  plot(c(0, 1), c(0, 1), type="l", xlab="Alpha", ylab=ifelse(rate=="FPR", "False positive rate", "True positive rate"), lty=2, lwd=2)
+  abline(v=seq(0, 1, 0.2), h=seq(0, 1, 0.2), col="gray"); box(lwd=3)
   for (i in 1:length(methods)) {
     method = methods[[i]]
     if (detailed) {
@@ -261,13 +266,15 @@ plot_alpha_curve = function(results, methods=METHODS, detailed=FALSE) {
     } else {
       col = method@color
     }
-    lines(alphas, false_positive_rates[, method@str],
+    lines(alphas, rates[, method@str],
           col=col, lwd=3)
     if (detailed) {
-      points(alphas, false_positive_rates[, method@str],
+      points(alphas, rates[, method@str],
              col=method@color, pch=i)
     }
   }
-  legend("topleft", inset=0.05, legend=sapply(methods, function(x) x@name),
-         col=sapply(methods, function(x) x@color), cex=1, lwd=3)
+  if (print_legend) {
+    legend("topleft", inset=0.05, legend=sapply(methods, function(x) x@name),
+           col=sapply(methods, function(x) x@color), cex=1, lwd=3)
+  }
 }
