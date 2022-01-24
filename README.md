@@ -18,7 +18,7 @@ The corresponding replication paper is available [here](https://arxiv.org/abs/21
 
 In order to obtain the results of our replication, including all tables and figures, run the file `results.R`.
 
-To replicate our results exactly use `set.seed(1)` and `nr_simulations = 100000` in the `simulation.R` script.
+To produce similar results with less computation time, decrease the number of simulations in the `simulation.R` script, e.g. by setting `nr_simulations = 10000`.
 
 ### Customization
 

@@ -1,7 +1,7 @@
 # add methods to be tested and list of method names METHODS to the workspace
 source("methods.R")
 
-nr_simulations = 10000
+nr_simulations = 100000
 mu_0 = 100
 
 result_cols = c(
@@ -13,7 +13,7 @@ result_cols = c(
 results = data.frame(matrix(nrow=nr_simulations, ncol=length(result_cols),
                             dimnames=list(c(), result_cols)))
 
-#set.seed(1)
+set.seed(1)
 for (i in 1:nr_simulations) {
   if((i / nr_simulations * 100) %% 10 == 0) {
     message("Simulation ", i, " of ", nr_simulations)
