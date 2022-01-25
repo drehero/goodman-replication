@@ -3,7 +3,7 @@ source("analysis_tools.R")
 
 RERUN_SIMULATION = TRUE 
 if (RERUN_SIMULATION) {
-  # run the simulation to get new results (10,000 cases)
+  # run the simulation to get new results (as many cases as specified in simulation.R, default is 100,000)
   source("simulation.R")
 } else {
   # load the stored results of a big simulation with 100,000 cases
