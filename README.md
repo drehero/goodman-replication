@@ -18,8 +18,6 @@ The corresponding replication paper is available [here](https://arxiv.org/abs/21
 
 In order to obtain the results of our replication, including all tables and figures, run the file `results.R`.
 
-To produce similar results with less computation time, decrease the number of simulations in the `simulation.R` script, e.g. by setting `nr_simulations = 10000`.
-
 ### Customization
 
 #### How to add your own method to the simulation:
@@ -64,7 +62,7 @@ plot_impact_of_MPSD(results, methods=c(conventional, mesp, your_method))
 
 #### How to make changes to the simulation setup:
 
-The simulation setup is defined in `simulation.R`. Changes to the setup values can be made in lines 20-25:
+The simulation setup is defined in `simulation.R`. Changes to the setup values can be made in lines 22-26:
 ```R
 # sample a case
 mu    = sample(75:125, size=1)

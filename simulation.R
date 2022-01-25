@@ -10,8 +10,7 @@ result_cols = c(
   sapply(METHODS, function(x) x@str)
 )
 
-results = data.frame(matrix(nrow=nr_simulations, ncol=length(result_cols),
-                            dimnames=list(c(), result_cols)))
+results = matrix(nrow=nr_simulations, ncol=length(result_cols))
 
 set.seed(1)
 for (i in 1:nr_simulations) {
@@ -27,17 +26,25 @@ for (i in 1:nr_simulations) {
   x = rnorm(n, mu, sigma)
   
   # record case
-  results[i,]$mu    = mu
-  results[i,]$sigma = sigma
-  results[i,]$n     = n
-  results[i,]$mpsd  = mpsd
+  results[i, 1] = mu
+  results[i, 2] = sigma
+  results[i, 3] = n
+  results[i, 4] = mpsd
   
   # record facts
-  results[i,]$fact = abs(mu - 100) > mpsd
+  results[i, 5] = abs(mu - 100) > mpsd
   # and decisions
-  for (method in METHODS) {
-    results[i, method@str] = getDecision(method, x=x, mu_0=mu_0, mpsd=mpsd)
+  for (j in 1:length(METHODS)) {
+    method = METHODS[[j]]
+    results[i, 5+j] = getDecision(method, x=x, mu_0=mu_0, mpsd=mpsd)
   }
+}
+
+results = data.frame(results)
+colnames(results) = result_cols
+results["fact"] = lapply(results["fact"], as.logical)
+for (method in METHODS) {
+  results[method@str] = lapply(results[method@str], as.logical)
 }
 
 # clear workspace
