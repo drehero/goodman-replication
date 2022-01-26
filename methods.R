@@ -199,5 +199,7 @@ thick_t_test_normal = Method("Thick t-test normal", thick_t_test_normal_decision
 
 # Methods in GSK
 GSK_METHODS = c(conventional, small_alpha, mesp, distance_only, interval_based)
-METHODS = c(GSK_METHODS, thick_t_test, thick_t_test_flat, thick_t_test_normal)
+
+METHODS = c(GSK_METHODS, thick_t_test)
+EXTENDED_METHODS = c(METHODS, thick_t_test_flat, thick_t_test_normal)
 

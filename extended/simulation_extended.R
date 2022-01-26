@@ -1,4 +1,4 @@
-# add methods to be tested and list of method names METHODS to the workspace
+# add methods to be tested and list of method names EXTENDED_METHODS to the workspace
 source("methods.R")
 
 nr_simulations = 10000
@@ -48,7 +48,7 @@ apply_method = function(cases, method) {
   return(getDecision(method, x=x, mu_0=mu_0, mpsd=mpsd, alpha=0.05))
 }
 
-for (method in METHODS) {
+for (method in EXTENDED_METHODS) {
   results_flat[[method@str]] = apply(results_flat, 1, apply_method, method)
   results_norm[[method@str]] = apply(results_norm, 1, apply_method, method)
   results_point[[method@str]] = apply(results_point, 1, apply_method, method)  
@@ -65,8 +65,8 @@ alphas = c(0, 0.0001, 0.0005, 0.001, 0.005, 0.01, seq(0.05, 0.95, by=0.05), 0.99
 result_cols = c(
   "mu", "sigma", "n", "mpsd",
   "fact",
-  sapply(METHODS, function(method) method@str),
-  unlist(sapply(METHODS, function(method){
+  sapply(EXTENDED_METHODS, function(method) method@str),
+  unlist(sapply(EXTENDED_METHODS, function(method){
     if (method@uses_alpha) {
       sapply(alphas, function(alpha) paste(method@str, alpha, sep="_"))  
     }
@@ -102,7 +102,7 @@ for (i in 1:nr_simulations) {
   # record facts
   results_alphas[i,]$fact = abs(mu - 100) > mpsd
   # and decisions
-  for (method in METHODS) {
+  for (method in EXTENDED_METHODS) {
     results_alphas[i, method@str] = getDecision(method, x=x, mu_0=mu_0, mpsd=mpsd, alpha=0.05)
     if (method@uses_alpha) {
       for (alpha in alphas) {
