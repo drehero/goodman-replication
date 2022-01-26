@@ -19,7 +19,7 @@ r_point_unif = function(mpsd){
 }
 
 # sample the cases
-#set.seed(1)
+set.seed(1)
 sigma = runif(nr_simulations, 4, 60)
 n = sample(5:100, size=nr_simulations, replace=TRUE)
 mpsd = runif(nr_simulations, 2, 20)
@@ -75,7 +75,7 @@ result_cols = c(
 results_alphas = data.frame(matrix(nrow=nr_simulations, ncol=length(result_cols),
                                    dimnames=list(c(), result_cols)))
 
-#set.seed(1)
+set.seed(1)
 for (i in 1:nr_simulations) {
   if((i / nr_simulations * 100) %% 10 == 0) {
     message("Simulation ", i, " of ", nr_simulations)

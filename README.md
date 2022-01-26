@@ -11,8 +11,8 @@ The corresponding replication paper is available [here](https://arxiv.org/abs/21
 * `analysis_tools.R` defines functions to summarize the simulation results
 * `results.R` summarizes the simulation results
 * `results_100K.csv` contains the results of 100,000 simulation runs
-* `extended/` contains the source code of an extended simulation described in the supplementary materials (The scripts are assumed to be called from the main directory, not from within `extended`. Accordingly, if you use RStudio, the .Rproj file is assumed to be in the main directory.)
-* `meta/` contains the source code of figure 1 (data available at https://osf.io/dc9e8/) 
+* `extended/` contains the source code of an extended simulation described in the appendix A.2 and A.3 (The scripts are assumed to be called from the main directory, not from within `extended`. Accordingly, if you use RStudio, the .Rproj file is assumed to be in the main directory.)
+* `meta/` contains the source code for the figure in appendix A.1 (data available at https://osf.io/dc9e8/) 
 
 ### Replication
 
