@@ -10,13 +10,13 @@ The corresponding replication paper is available [here](https://arxiv.org/abs/21
 * `simulation.R` defines and runs the simulation setup
 * `analysis_tools.R` defines functions to summarize the simulation results
 * `results.R` summarizes the simulation results
-* `results_100K.csv` contains the results of 100,000 simulation runs
-* `extended/` contains the source code of an extended simulation described in the appendix A.2 and A.3 (The scripts are assumed to be called from the main directory, not from within `extended`. Accordingly, if you use RStudio, the .Rproj file is assumed to be in the main directory.)
-* `meta/` contains the source code for the figure in appendix A.1 (data available at https://osf.io/dc9e8/) 
+* `extended/` contains the source code of an extended simulation described in the appendix A.2 and A.3 
+* `meta/` contains the source code for figure in appendix A.1
 
 ### Replication
 
-In order to obtain the results of our replication, including all tables and figures, run the file `results.R`.
+In order to obtain the main results of our comment, i.e. Tables 1-4 and Figures 1-2, run the file `results.R`. 
+Figure A.1 is obtained by running `psych_me_dist.R` stored in the folder `meta`, Figure A.2 and Table A.1 are obtained by running `results_extended.R` stored in the folder `extended`. All scripts are assumed to be called from the main directory. If you use RStudio, the .Rproj file is assumed to be in the main directory.
 
 ### Customization
 

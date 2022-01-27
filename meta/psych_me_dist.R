@@ -2,7 +2,7 @@ library(tidyverse)
 library(truncnorm)
 
 # load dataset from Aert et al. (2019), available at https://osf.io/fy6xt/
-source("meta.out.psy.txt", encoding="ISO-8859-1")
+source("meta/meta.out.psy.txt")
 
 # extract only small meta-analytic effect estimates for Cohen's d (calculated based on
 # homogeneous subsets from meta-analyses)
