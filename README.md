@@ -11,7 +11,7 @@ The corresponding replication paper is available [here](https://arxiv.org/abs/21
 * `analysis_tools.R` defines functions to summarize the simulation results
 * `results.R` summarizes the simulation results
 * `extended/` contains the source code of an extended simulation described in the appendix A.2 and A.3 
-* `meta/` contains the source code for figure in appendix A.1
+* `meta/` contains the source code for the figure in appendix A.1
 
 ### Replication
 
