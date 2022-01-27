@@ -1,8 +1,8 @@
 # A Proposed Hybrid Effect Size Plus p-Value: A Comment on Goodman et al. (2019)
 
-This repository contains the source code of our replication of Goodman et al. (2019). 
+This repository contains the source code of our comment on Goodman et al. (2019). 
 
-The corresponding replication paper is available [here](https://arxiv.org/abs/2107.08860).
+A corresponding working paper is available [here](https://arxiv.org/abs/2107.08860).
 
 ## Usage
 
@@ -16,7 +16,10 @@ The corresponding replication paper is available [here](https://arxiv.org/abs/21
 ### Replication
 
 In order to obtain the main results of our comment, i.e. Tables 1-4 and Figures 1-2, run the file `results.R`. 
-Figure A.1 is obtained by running `psych_me_dist.R` stored in the folder `meta`, Figure A.2 and Table A.1 are obtained by running `results_extended.R` stored in the folder `extended`. All scripts are assumed to be called from the main directory. If you use RStudio, the .Rproj file is assumed to be in the main directory.
+
+Figure A.1 is obtained by running `psych_me_dist.R` stored in the folder `meta`, Figure A.2 and Table A.1 are obtained by running `results_extended.R` stored in the folder `extended`.
+
+All scripts are assumed to be called from the main directory. If you use RStudio, the .Rproj file is assumed to be in the main directory.
 
 ### Customization
 
