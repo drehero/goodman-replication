@@ -10,14 +10,10 @@ A corresponding working paper is available [here](https://arxiv.org/abs/2107.088
 * `simulation.R` defines and runs the simulation setup
 * `analysis_tools.R` defines functions to summarize the simulation results
 * `results.R` summarizes the simulation results
-* `extended/` contains the source code of an extended simulation described in the appendix A.2 and A.3 
-* `meta/` contains the source code for the figure in appendix A.1
 
 ### Replication
 
 In order to obtain the main results of our comment, i.e. Tables 1-4 and Figures 1-2, run the file `results.R`. 
-
-Figure A.1 is obtained by running `psych_me_dist.R` stored in the folder `meta`, Figure A.2 and Table A.1 are obtained by running `results_extended.R` stored in the folder `extended`.
 
 All scripts are assumed to be called from the main directory. If you use RStudio, the .Rproj file is assumed to be in the main directory.
 
@@ -74,7 +70,3 @@ n     = sample( 5:100, size=1)
 mpsd  = sample( 2:20,  size=1)
 x = rnorm(n, mu, sigma)
 ```
-
-## Dependencies
-
-[tidyverse](https://www.tidyverse.org/) and [truncnorm](https://cran.r-project.org/web/packages/truncnorm/index.html)
